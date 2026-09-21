@@ -4,13 +4,7 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const time = (iso) => (iso ? new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '');
-  const ago = (iso) => {
-    if (!iso) return '';
-    const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
-    if (s < 60) return `${s}s ago`;
-    if (s < 3600) return `${Math.round(s / 60)} min ago`;
-    return time(iso);
-  };
+  const timeS = (iso) => (iso ? new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '');
 
   let state = null;
   let view = 'home';
@@ -143,8 +137,9 @@
     return `<div class="card"><h2>Timeline</h2><ul class="list" id="timeline">${state.events
       .map((e) => {
         const cls = e.severity === 'high' ? 'high' : e.severity === 'good' ? 'good' : e.type.startsWith('call') ? 'call' : '';
+        const icon = e.severity === 'good' ? '✓' : ICON[e.type] ?? '·';
         const click = e.callId ? `class="clickable" data-call="${e.callId}" role="button" tabindex="0"` : '';
-        return `<li ${click}><span class="time">${time(e.at)}</span><span class="icon ${cls}" aria-hidden="true">${ICON[e.type] ?? '·'}</span><div class="body"><div class="title">${esc(e.title)}</div>${e.detail ? `<div class="detail">${esc(e.detail)}</div>` : ''}</div></li>`;
+        return `<li ${click}><span class="time">${timeS(e.at)}</span><span class="icon ${cls}" aria-hidden="true">${icon}</span><div class="body"><div class="title">${esc(e.title)}</div>${e.detail ? `<div class="detail">${esc(e.detail)}</div>` : ''}</div></li>`;
       })
       .join('')}</ul></div>`;
   }
@@ -221,7 +216,14 @@
       sendVitals();
     });
   });
-  sim.time.addEventListener('change', sendVitals);
+  sim.time.addEventListener('change', () => {
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(sim.time.value)) {
+      toast('Watch time must be HH:MM');
+      sim.time.value = state?.vitals?.simTime ?? '11:00';
+      return;
+    }
+    sendVitals();
+  });
   sim.fall.addEventListener('change', () => {
     if (sim.fall.checked) {
       act(api('/api/signals', { type: 'fall', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('Fall signal sent — calling Mia'); poll(); }));
