@@ -3,7 +3,7 @@
 Write your answers after each `→`. Push straight to `main` (`git pull` first). An agent copies Parts 1–2 into `data/persona.json` and `src/prompts.js`, so you never touch code.
 Deadlines (D-027): **Parts 1–2 by 16:15** (the live calls need them) · Parts 3–5 by 18:30 (for the deck and the 19:00 Q&A).
 
-Rules: no real address, no real phone number anywhere in this file (the repo is public). No medical advice in anything Belletje says: only "check on her" / "mention it to Dr Smeets".
+Rules: no real address, no real phone number anywhere in this file (the repo is public). No medical advice in anything HAVI says: only "check on her" / "mention it to Dr Smeets".
 
 ---
 
@@ -17,9 +17,9 @@ Current values are shown; overwrite any of them or leave them as is.
 - Likes → her garden, crosswords, calls from granddaughter Lotte
 - Something about Mr Hendriks (one line) → Friendly neighbour; Mia has known him for years and he has her spare key.
 - Something about Tom (job, how often he visits) →Tom works in Maastricht and visits Mia about twice a week.
-- A late husband / pet / hobby detail Belletje can bring up → Her husband passed away a few years ago; she still enjoys taking care of the garden.
+- A late husband / pet / hobby detail HAVI can bring up → Her husband passed away a few years ago; she still enjoys taking care of the garden.
 
-**Memory from last calls** (4–6 short lines. Belletje brings these up naturally.)
+**Memory from last calls** (4–6 short lines. HAVI brings these up naturally.)
 The first two must stay: scenario 1 depends on them ("How did Lotte's exam go?" and the "Dizzy 3× this week" flag).
 1. Lotte had an exam yesterday; Mia was nervous for her
 2. Mentioned feeling dizzy on Monday and Wednesday
@@ -31,7 +31,7 @@ The first two must stay: scenario 1 depends on them ("How did Lotte's exam go?" 
 - How Lotte's exam went → It went well; Mia is relieved and proud of her.
 - What you plan to do today → Stay home this morning and maybe do some gardening later.
 
-## Part 2 — How Belletje talks (tone rules)
+## Part 2 — How HAVI talks (tone rules)
 The rules below are what the AI gets now. Cross out, reword or add lines.
 
 **Check-in call (daily, warm):**
@@ -58,7 +58,7 @@ Your changes → Stay calm and factual. No diagnosis or speculation about what h
 **First words HAVI says when Mia picks up** (now: "Hello Mia, it's HAVI. Is now a good moment for our little chat?") →
 
 ## Part 3 — Stage lines for you as Mia (rehearse with Daniel)
-Every live call starts with a Twilio trial message: **press any key**, then Belletje speaks.
+Every live call starts with a Twilio trial message: **press any key**, then HAVI speaks.
 - **Scenario 1 (check-in):** answer, press a key, chat. You must say you “slept badly” and “felt dizzy again” this morning (that triggers the flag). Mention Lotte’s exam.
 - **Scenario 2 (fall):**your phone rings. Don’t answer. After 15 s, Max’s phone rings.
 .
