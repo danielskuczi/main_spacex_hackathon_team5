@@ -76,7 +76,7 @@ export function heuristicAnalysis({ call, persona, messages }) {
   const dizzyNow = /\b(dizzy|dizziness|light-?headed|duizelig)\b/.test(said);
   if (dizzyNow) {
     const n = dizzyBefore + 1;
-    flags.push({ text: `Dizzy ${n}× this week — suggest calling ${gp}`, severity: n >= 3 ? 'medium' : 'low' });
+    flags.push({ text: `Dizzy ${n}× this week — suggest calling the GP`, severity: n >= 3 ? 'medium' : 'low' });
     newFacts.push(`Felt dizzy again${call.vitals?.simTime ? ` (around ${call.vitals.simTime})` : ''}`);
     if (urgency === 'low' && n >= 3) urgency = 'medium';
   }
@@ -114,9 +114,19 @@ export function heuristicAnalysis({ call, persona, messages }) {
   };
 }
 
+// PLAN §10 bans medical wording in every summary. The model ignores that rule in the prompt, so code enforces it.
+// ponytail: plain word swap, not grammar-aware; add a rewrite pass if a phrase ever reads badly on stage.
+const SWAP = { take: 'have', takes: 'has', taking: 'having', took: 'had', taken: 'had', dose: 'tablet', doses: 'tablets' };
+export const clean = (s) =>
+  String(s)
+    .replace(/\b(take|takes|taking|took|taken|doses?)\b/gi, (w) => SWAP[w.toLowerCase()])
+    .replace(/\byou may have\b|\bdiagnos\w*/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
 function normalise(raw, fallback) {
   const out = { ...fallback, source: 'llm' };
-  if (typeof raw.summary === 'string' && raw.summary.trim()) out.summary = raw.summary.trim();
+  if (typeof raw.summary === 'string' && raw.summary.trim()) out.summary = clean(raw.summary);
   if (typeof raw.mood === 'string' && raw.mood.trim()) out.mood = raw.mood.trim().toLowerCase();
   if (URGENCIES.includes(raw.urgency)) out.urgency = raw.urgency;
   if (OUTCOMES.includes(raw.outcome)) out.outcome = raw.outcome;
@@ -124,10 +134,10 @@ function normalise(raw, fallback) {
     out.flags = raw.flags
       .map((f) => (typeof f === 'string' ? { text: f, severity: 'low' } : f))
       .filter((f) => f && typeof f.text === 'string' && f.text.trim())
-      .map((f) => ({ text: f.text.trim(), severity: ['low', 'medium', 'high'].includes(f.severity) ? f.severity : 'low' }));
+      .map((f) => ({ text: clean(f.text), severity: ['low', 'medium', 'high'].includes(f.severity) ? f.severity : 'low' }));
   if (Array.isArray(raw.new_facts ?? raw.newFacts))
-    out.newFacts = (raw.new_facts ?? raw.newFacts).map((f) => String(f).trim()).filter(Boolean).slice(0, 5);
-  if (typeof (raw.family_message ?? raw.familyMessage) === 'string') out.familyMessage = (raw.family_message ?? raw.familyMessage).trim();
+    out.newFacts = (raw.new_facts ?? raw.newFacts).map(clean).filter(Boolean).slice(0, 5);
+  if (typeof (raw.family_message ?? raw.familyMessage) === 'string') out.familyMessage = clean(raw.family_message ?? raw.familyMessage);
   return out;
 }
 
@@ -143,11 +153,12 @@ Return exactly this JSON object:
   "mood": "one or two words",
   "urgency": "low" | "medium" | "high",
   "outcome": ${call.kind === 'checkin' ? '"ok" | "needs_help"' : call.kind === 'escalation_mia' ? '"ok" | "needs_help" | "unclear"' : '"yes" | "no" | "unclear"'},
-  "flags": [{"text": "short flag for the family, e.g. 'Dizzy 3× this week — suggest calling Dr Smeets'", "severity": "low"|"medium"|"high"}],
+  "flags": [{"text": "short flag for the family, e.g. 'Dizzy 3× this week — suggest calling the GP'", "severity": "low"|"medium"|"high"}],
   "new_facts": ["things worth remembering for the next call, in her words, max 5"],
   "family_message": "one sentence to text the family, or null"
 }
-Count recurring complaints across memory AND this call (memory says dizzy Monday and Wednesday, so a new mention is the third). Flags only for things a caring son would want to know. Empty arrays are fine.`;
+Count recurring complaints across memory AND this call (memory says dizzy Monday and Wednesday, so a new mention is the third). Flags only for things a caring son would want to know. Empty arrays are fine.
+Wording rules for every field: never use the words "take", "dose", "diagnosis" or "you may have"; describe medication only as "her tablet" (e.g. "forgot her tablet this morning"). Refer to the doctor as "the GP". Actions for the family are only "check on her" or "suggest calling the GP".`;
     const user = `Call type: ${call.kind}. Called: ${call.toName}.
 Persona: ${JSON.stringify({ name: persona.name, age: persona.age, gp: persona.gp, routine: persona.routine, likes: persona.likes })}
 Memory from earlier calls: ${JSON.stringify(persona.memory_from_last_calls ?? [])}
@@ -174,8 +185,9 @@ ${transcriptToText(messages) || '(empty)'}`;
       });
       if (!res.ok) throw new Error(`LLM HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
       const data = await res.json();
-      const content = data.choices?.[0]?.message?.content;
-      return JSON.parse(content);
+      // Claude-family models wrap JSON in ``` fences even in JSON mode: parse the outermost {...}.
+      const content = String(data.choices?.[0]?.message?.content ?? '');
+      return JSON.parse(content.slice(content.indexOf('{'), content.lastIndexOf('}') + 1));
     } finally {
       clearTimeout(timer);
     }
@@ -186,7 +198,19 @@ ${transcriptToText(messages) || '(empty)'}`;
       const fallback = heuristicAnalysis(input);
       if (!llm.apiKey) return fallback;
       try {
-        return normalise(await llmAnalyse(input), fallback);
+        const out = normalise(await llmAnalyse(input), fallback);
+        // Rule 1 (D-003): the outcome enum drives escalation, so code has the last word on it.
+        // Live run 16:41: the model called a clear "Yes, I'm going now" unclear, and "dizzy again" needs_help.
+        if (input.call.kind !== 'checkin') {
+          // escalation legs: the words decide; the model only writes the summary (no flags/facts into Mia's memory)
+          if (fallback.outcome !== 'unclear') out.outcome = fallback.outcome;
+          out.flags = fallback.flags;
+          out.newFacts = fallback.newFacts;
+        } else if (out.outcome === 'needs_help' && fallback.outcome !== 'needs_help') {
+          const saidGettingHelp = (input.messages ?? []).some((m) => m.role === 'assistant' && /getting help/i.test(m.text));
+          if (!saidGettingHelp) out.outcome = 'ok';
+        }
+        return out;
       } catch (err) {
         log.warn(`analysis: LLM failed, using heuristic (${err.message})`);
         return { ...fallback, llmError: err.message };

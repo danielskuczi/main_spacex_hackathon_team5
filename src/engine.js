@@ -193,7 +193,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     switch (evt.type) {
       case 'status':
         if (evt.status === 'ringing' || evt.status === 'queued') call.status = 'ringing';
-        if (evt.status === 'in-progress') {
+        if (evt.status === 'in-progress' && !call.answeredAt) {
           call.status = 'in-progress';
           call.answeredAt = iso();
           clearTimer(call.id);

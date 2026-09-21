@@ -22,6 +22,7 @@ test('B03 check-in prompt carries memory, last summaries and today\'s watch data
   assert.match(system, /4\.2 hours of sleep/);
   assert.match(system, /restless, short night/);
   assert.match(system, /Never give medical advice/);
+  assert.match(system, /Never tell her to take, skip, change or remember any medicine/, 'live call 16:30 advised taking a tablet');
   assert.match(system, /Dr Smeets/);
   assert.match(firstMessage, /Hello Mia, it's Belletje/);
 });
@@ -44,7 +45,7 @@ test('B04 heuristic analysis: "dizzy again" becomes the 3× flag with a GP sugge
   const a = heuristicAnalysis({ call, persona, messages: SCRIPTS['checkin-dizzy'] });
   assert.equal(a.source, 'heuristic');
   assert.equal(a.flags.length, 1);
-  assert.match(a.flags[0].text, /Dizzy 3× this week — suggest calling Dr Smeets/);
+  assert.match(a.flags[0].text, /Dizzy 3× this week — suggest calling the GP/);
   assert.equal(a.urgency, 'medium');
   assert.equal(a.outcome, 'ok');
   assert.ok(a.newFacts.some((f) => /Lotte's exam went well/.test(f)));
@@ -78,8 +79,8 @@ test('B05 LLM analyser: uses the model when it answers, falls back when it fails
       const body = JSON.parse(init.body);
       assert.equal(body.response_format.type, 'json_object');
       assert.match(body.messages[1].content, /Transcript:/);
-      const content = JSON.stringify({ summary: 'Mia is fine and cheerful.', mood: 'Cheerful', urgency: 'low', outcome: 'ok', flags: ['Mentioned dizziness once'], new_facts: ['Loves her garden'], family_message: null });
-      return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
+      const content = JSON.stringify({ summary: 'Mia is fine and cheerful.', mood: 'Cheerful', urgency: 'low', outcome: 'ok', flags: ['Mentioned dizziness once'], new_facts: ['Loves her garden'], family_message: 'She forgot her tablet but has taken it now.' });
+      return new Response(JSON.stringify({ choices: [{ message: { content: '```json\n' + content + '\n```' } }] }), { status: 200 });
     },
   });
   const call = { kind: 'checkin', toName: 'Mia' };
@@ -88,6 +89,7 @@ test('B05 LLM analyser: uses the model when it answers, falls back when it fails
   assert.equal(a.summary, 'Mia is fine and cheerful.');
   assert.deepEqual(a.flags, [{ text: 'Mentioned dizziness once', severity: 'low' }]);
   assert.deepEqual(a.newFacts, ['Loves her garden']);
+  assert.equal(a.familyMessage, 'She forgot her tablet but has had it now.', 'banned medical words are swapped in code (PLAN §10)');
 
   const bad = createAnalyzer(loadConfig({ OPENAI_API_KEY: 'k' }), { log: { warn() {} }, fetchImpl: async () => new Response('nope', { status: 500 }) });
   const b = await bad.analyze({ call, persona, messages: SCRIPTS['checkin-dizzy'], vitals });
@@ -102,4 +104,18 @@ test('B05 LLM analyser: uses the model when it answers, falls back when it fails
   const c = await slow.analyze({ call, persona, messages: SCRIPTS['checkin-dizzy'], vitals });
   assert.equal(c.source, 'heuristic');
   assert.ok(Date.now() - t0 < 1000, 'timeout must be enforced');
+});
+
+test('B05b code, not the model, has the last word on the outcome enum (rule 1)', async () => {
+  const lying = (outcome) =>
+    createAnalyzer(loadConfig({ OPENAI_API_KEY: 'k' }), {
+      log: { warn() {} },
+      fetchImpl: async () => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ summary: 'S', outcome, urgency: 'high', flags: ['Dizzy again'], new_facts: ['Fall on Saturday'] }) } }] }), { status: 200 }),
+    });
+  const tom = await lying('unclear').analyze({ call: { kind: 'escalation_tom', toName: 'Tom' }, persona, messages: SCRIPTS['tom-yes'], vitals });
+  assert.equal(tom.outcome, 'yes', 'a clear yes stays yes');
+  assert.deepEqual(tom.newFacts, [], 'escalation calls never write into Mia\'s memory');
+  const mia = await lying('needs_help').analyze({ call: { kind: 'checkin', toName: 'Mia' }, persona, messages: SCRIPTS['checkin-dizzy'], vitals });
+  assert.equal(mia.outcome, 'ok', '"dizzy again" is a flag, not an emergency');
+  assert.equal(mia.summary, 'S');
 });

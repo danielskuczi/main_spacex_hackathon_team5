@@ -31,3 +31,13 @@
 12. **`public/phone.html` loads the Vapi browser library from jsdelivr** (`@vapi-ai/web@2.7.1`). F6 is about the app shell (`index.html`, `app.js`, `styles.css`), which still has no external dependencies (B18). A web call needs internet anyway.
 
 13. **The phone endpoints have no auth.** Anyone with the tunnel URL can answer a ringing call and receive the assistant prompt (fictional persona only). Auth is on the PLAN §1 cut list; the tunnel URL is not published.
+
+## 2026-09-21 · Phase 1 live (16:30–16:45)
+
+14. **The first live call gave medication advice** ("It might be a good idea to take your tablet with a little water soon"). Hard rule 3 broken by the voice model. Fixed in `buildCheckinPrompt` (no medicine instructions, not even her usual tablet; the tablet question removed from the plan) and pinned in B03. The prompt is a mitigation, not a guarantee: listen for it in every rehearsal.
+
+15. **The real LLM mislabelled outcomes** and fired a false escalation in a simulated run (see D-033). The fake-endpoint tests could not catch it; B05b now does.
+
+16. **Transcripts go to a third-party Claude reseller** (D-032), not to Anthropic or OpenAI directly. Fine for the fictional persona. It would not pass the privacy question for real users; say so if the jury asks.
+
+17. **The TTS says "Bellicca" for "Belletje"** in the first live call. Not fixed; see the Phase 1 gate options.

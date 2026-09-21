@@ -7,7 +7,7 @@ Read order for a fresh session: PLAN.md → DECISIONS.md → DEVIATIONS.md → t
 npm install                         # once (Node >= 22; only dependency is express)
 cp .env.example .env                # fill keys; with none, everything runs simulated
 npm start                           # http://localhost:3000  (npm run dev = --watch)
-npm test                            # the battery, 27 tests, < 5 s, must be green at every phase close
+npm test                            # the battery, 28 tests, < 5 s, must be green at every phase close
 node scripts/scenario.js 1          # proactive check-in (simulated)   --live for real calls
 node scripts/scenario.js 2          # fall → no answer → Tom             --watch=90 to follow longer
 npm run reset                       # wipe demo state (server running or not)
