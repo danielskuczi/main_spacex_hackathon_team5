@@ -180,19 +180,36 @@
       return;
     }
     const what = inc.type === 'sos' ? 'pressed her alarm button' : inc.type === 'help_request' ? 'asked for help' : 'may have fallen';
-    const calling = inc.stage === 'calling_tom' && tomCall && ['queued', 'ringing', 'in-progress'].includes(tomCall.status) ? `Calling your phone now${tomCall.simulated ? ' (simulated)' : ''}…` : inc.stage === 'calling_neighbour' ? `Calling ${esc(state.persona.neighbour.split(',')[0])}…` : inc.stage === 'alarm_centre' ? 'Alarm centre has the case.' : '';
+    const calling = inc.stage === 'calling_tom' && tomCall && ['queued', 'ringing', 'in-progress'].includes(tomCall.status) ? `Calling your phone now${tomCall.simulated ? ' (simulated)' : ''}…` : inc.stage === 'calling_neighbour' ? `Calling ${esc(state.persona.neighbour.split(',')[0])}…` : '';
     el.hidden = false;
     el.className = 'alert';
+    const neighbourName = esc(state.persona.neighbour.split(',')[0]);
+    const head =
+      inc.stage === 'alarm_centre' ? 'The alarm centre has the case.' :
+      inc.stage === 'calling_neighbour' ? `HAVI is calling ${neighbourName}.` :
+      inc.type === 'sos' ? 'Your mother pressed her alarm button.' : `Your mother ${what} and isn't answering.`;
+    const line =
+      inc.stage === 'alarm_centre' ? 'Nobody nearby could go, so HAVI handed the case to the alarm centre (simulated in this demo). You can still go yourself.' :
+      inc.stage === 'calling_neighbour' ? `You said you can't go. ${neighbourName} has the spare key. If he can't go either, the alarm centre takes over.` :
+      inc.type === 'sos' ? `Mia asked for help at ${time(inc.at)}.` : inc.type === 'help_request' ? `Mia asked for help during her call at ${time(inc.at)}.` : `Mia's watch detected a fall at ${time(inc.at)}. She didn't pick up within ${state.meta.noAnswerSeconds} seconds.`;
+    const actions =
+      inc.stage === 'calling_tom'
+        ? `<button class="go" data-respond="yes" data-incident="${inc.id}" aria-label="I am going">I'm going now</button>
+        <button class="no" data-respond="no" data-incident="${inc.id}" aria-label="I cannot go">I can't — try ${neighbourName}</button>`
+        : inc.stage === 'calling_neighbour'
+          ? `<button class="go" data-respond="yes" data-incident="${inc.id}" aria-label="I can go after all">I can go after all</button>
+        <button class="no" data-respond="no" data-incident="${inc.id}" aria-label="Hand over to the alarm centre">Hand over to the alarm centre now</button>`
+          : `<button class="go" data-respond="yes" data-incident="${inc.id}" aria-label="I am going after all">I'm going now</button>
+        <button class="no" data-close-incident="${inc.id}" aria-label="Mark Mia safe">Mia is safe</button>`;
     el.innerHTML = `
       <div class="kicker">HAVI · ${time(inc.at)}</div>
-      <h1 id="alert-title">${inc.type === 'sos' ? 'Your mother pressed her alarm button.' : `Your mother ${what} and isn't answering.`}</h1>
-      <p>${inc.type === 'sos' ? `Mia asked for help at ${time(inc.at)}.` : inc.type === 'help_request' ? `Mia asked for help during her call at ${time(inc.at)}.` : `Mia's watch detected a fall at ${time(inc.at)}. She didn't pick up within ${state.meta.noAnswerSeconds} seconds.`}</p>
+      <h1 id="alert-title">${head}</h1>
+      <p>${line}</p>
       <div class="addr">${esc(state.persona.address)}</div>
       <p style="font-size:15px;opacity:.85">${esc(state.persona.neighbour)}</p>
       ${calling ? `<div class="calling">${calling}</div>` : ''}
       <div class="actions">
-        <button class="go" data-respond="yes" data-incident="${inc.id}" aria-label="I am going">I'm going now</button>
-        <button class="no" data-respond="no" data-incident="${inc.id}" aria-label="I cannot go">I can't — try ${inc.stage === 'calling_tom' ? esc(state.persona.neighbour.split(',')[0]) : 'the alarm centre'}</button>
+        ${actions}
       </div>`;
   }
 

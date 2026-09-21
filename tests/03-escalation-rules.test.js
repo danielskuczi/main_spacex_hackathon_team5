@@ -130,3 +130,15 @@ test('B08c SOS skips the check call: she pressed it herself, so Tom is called at
   assert.equal(again.id, inc.id);
   assert.match(again.ignored, /Reset demo/, 'the Watch tab can say why a second alert did nothing');
 });
+
+test('B09b Tom says no twice: the second "no" hands over to the alarm centre, it does not re-dial the neighbour', async () => {
+  const { engine, store } = sys({ env: { ESCALATION_NO_ANSWER_MS: '50', ESCALATION_CONTACT_NO_ANSWER_MS: '5000' } });
+  const inc = await engine.handleSignal({ type: 'fall', simulate: { mia: { noAnswer: true }, tom: { noAnswer: true }, neighbour: { noAnswer: true } } });
+  await waitFor(() => inc.stage === 'calling_tom', { label: 'calling Tom' });
+  await engine.respondToIncident(inc.id, { who: 'tom', answer: 'no' });
+  assert.equal(inc.stage, 'calling_neighbour');
+  await engine.respondToIncident(inc.id, { who: 'tom', answer: 'no' });
+  assert.equal(inc.stage, 'alarm_centre');
+  assert.equal(calls(store, 'escalation_neighbour').length, 1, 'no second call to the neighbour');
+  assert.equal(calls(store, 'escalation_neighbour')[0].endedReason, 'handed-over-to-alarm-centre');
+});

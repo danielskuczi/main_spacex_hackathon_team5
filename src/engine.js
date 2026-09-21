@@ -474,8 +474,18 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     }
     addEvent({ type: 'incident', title: `${name} answered in the app: ${answer === 'yes' ? "I'm going" : "I can't go"}`, severity: answer === 'yes' ? 'good' : 'high', incidentId: id });
     if (answer === 'yes') await helpOnTheWay(incident, name, pending?.id);
-    else if (who === 'tom') await callFamily(incident, 'neighbour', `${name} cannot go right now`);
-    else await handoffAlarmCentre(incident, `${name} cannot go`);
+    else if (who === 'tom' && incident.stage === 'calling_tom') await callFamily(incident, 'neighbour', `${name} cannot go right now`);
+    else if (incident.stage !== 'alarm_centre') {
+      // Tom already said no and the neighbour is ringing: "no" again = hand over now (live 17:19 re-dialled the neighbour instead)
+      for (const c of S().calls) {
+        if (c.incidentId !== id || !ACTIVE_CALL.has(c.status)) continue;
+        clearTimer(c.id);
+        c.status = 'ended';
+        c.endedAt = iso();
+        c.endedReason = 'handed-over-to-alarm-centre';
+      }
+      await handoffAlarmCentre(incident, `${name} asked for the alarm centre`);
+    }
     save();
     return incident;
   }
