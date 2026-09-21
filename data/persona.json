@@ -1,0 +1,16 @@
+{
+  "name": "Mia Jacobs",
+  "age": 81,
+  "lives": "alone, Voorbeeldstraat 12, Maastricht (fictional)",
+  "address": "Voorbeeldstraat 12, Maastricht",
+  "son": { "name": "Tom", "phone": "TOM_PHONE from .env" },
+  "neighbour": "Mr Hendriks, next door, has a spare key",
+  "neighbour_name": "Mr Hendriks",
+  "gp": "Dr Smeets",
+  "routine": "coffee at 8, walk to the bakery, blood-pressure tablet with breakfast",
+  "likes": "her garden, crosswords, calls from granddaughter Lotte",
+  "memory_from_last_calls": [
+    "Lotte had an exam yesterday; Mia was nervous for her",
+    "Mentioned feeling dizzy on Monday and Wednesday"
+  ]
+}
