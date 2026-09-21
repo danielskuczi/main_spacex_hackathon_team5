@@ -116,7 +116,7 @@ Your only job: get a clear yes or no to "Can you go now?"
 Urgent but calm. No small talk. No medical advice. Keep the call under 45 seconds.`;
   const firstMessage =
     contact.role === 'tom'
-      ? `${contact.name}, this is HAVI calling about ${relation}, ${persona.name}. Her watch detected ${incident.type === 'sos' ? 'an alarm' : 'a fall'} at ${time} and she isn't answering her phone. ${reason}. She is at ${persona.address}. Can you go now?`
+      ? `${contact.name}, this is HAVI calling about ${relation}, ${persona.name}. ${incident.type === 'sos' ? `She pressed her alarm button at ${time}.` : `Her watch detected a fall at ${time} and she isn't answering her phone.`} ${reason}. She is at ${persona.address}. Can you go now?`
       : `${contact.name}, this is HAVI calling about ${relation}, ${persona.name} at ${persona.address}. Her watch detected ${incident.type === 'sos' ? 'an alarm' : 'a fall'} at ${time} and neither she nor her son ${persona.son.name} could be reached. You have the spare key. Can you go and check on her now?`;
   return { system, firstMessage };
 }

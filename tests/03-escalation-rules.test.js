@@ -53,7 +53,7 @@ test('B07 no pickup within the timeout → Tom is called with "Can you go now?" 
 
 test('B08 Mia answers and is fine → false alarm, no call to Tom, family told', async () => {
   const { engine, store } = sys();
-  await engine.handleSignal({ type: 'sos', simulate: { mia: { script: 'mia-ok' } } });
+  await engine.handleSignal({ type: 'fall', simulate: { mia: { script: 'mia-ok' } } });
   await waitFor(() => store.state.incidents[0].resolvedAt, { label: 'incident resolved' });
   assert.equal(store.state.incidents[0].outcome, 'mia_ok');
   assert.equal(calls(store, 'escalation_tom').length, 0);
@@ -118,4 +118,15 @@ test('B12 a failed dial (no number configured on a live provider) is treated as 
   assert.equal(store.state.incidents[0].stage, 'alarm_centre');
   assert.equal(store.state.status.level, 'alarm_centre');
   assert.equal(store.state.events.filter((e) => e.type === 'error').length, 3, 'each failed dial is visible in the timeline');
+});
+
+test('B08c SOS skips the check call: she pressed it herself, so Tom is called at once (D-039)', async () => {
+  const { engine, store } = sys({ env: { ESCALATION_NO_ANSWER_MS: '2000' } });
+  const inc = await engine.handleSignal({ type: 'sos', simulate: {} });
+  await waitFor(() => calls(store, 'escalation_tom').length === 1, { label: 'Tom called', timeout: 500 });
+  assert.equal(calls(store, 'escalation_mia').length, 0, 'no "are you okay?" call to the person who pressed the button');
+  assert.ok(store.state.notifications.some((n) => /pressed her alarm button/.test(n.message) && !/isn't answering/.test(n.message)));
+  const again = await engine.handleSignal({ type: 'fall', simulate: {} });
+  assert.equal(again.id, inc.id);
+  assert.match(again.ignored, /Reset demo/, 'the Watch tab can say why a second alert did nothing');
 });

@@ -353,7 +353,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     save();
     if (who === 'tom') {
       await notifyFamily(
-        `HAVI: your mother ${incident.type === 'sos' ? 'pressed her alarm button' : 'may have fallen'} at ${hhmm(incident.at)} and isn't answering. ${reason}. Address: ${persona().address}. Can you go now? Answer in the app or on the call.`,
+        `HAVI: your mother ${incident.type === 'sos' ? 'pressed her alarm button' : 'may have fallen'} at ${hhmm(incident.at)}. ${reason}. Address: ${persona().address}. Can you go now? Answer in the app or on the call.`,
         { incidentId: incident.id },
       );
     }
@@ -429,12 +429,19 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
       if (existing) {
         addEvent({ type: 'incident', title: `${type === 'sos' ? 'SOS pressed' : 'Fall detected'} again during an active incident`, severity: 'high', incidentId: existing.id });
         save();
-        return existing;
+        return { ...existing, ignored: 'An alert is already being handled — press Reset demo first' };
       }
       const incident = openIncident(type, { simulate: signal.simulate });
+      if (type === 'sos') {
+        // D-039: she pressed the button herself, so no "are you okay?" call first (the Apple SOS anchor). A fall still checks with her.
+        addEvent({ type: 'incident', title: 'SOS button pressed', detail: 'She asked for help — calling Tom now', severity: 'high', incidentId: incident.id });
+        save();
+        await callFamily(incident, 'tom', 'She needs help now');
+        return incident;
+      }
       incident.stage = 'calling_mia';
-      setStatus('checking', `${type === 'sos' ? 'SOS pressed' : 'Fall detected'} at ${hhmm()} — calling Mia`);
-      addEvent({ type: 'incident', title: type === 'sos' ? 'SOS button pressed' : 'Fall detected by the watch', detail: 'Calling Mia to check', severity: 'high', incidentId: incident.id });
+      setStatus('checking', `Fall detected at ${hhmm()} — calling Mia`);
+      addEvent({ type: 'incident', title: 'Fall detected by the watch', detail: 'Calling Mia to check', severity: 'high', incidentId: incident.id });
       save();
       const call = await startCall({ kind: 'escalation_mia', to: 'mia', incidentId: incident.id, simulate: incident.simulate?.mia ?? incident.simulate });
       incident.miaCallId = call.id;

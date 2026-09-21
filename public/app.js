@@ -185,8 +185,8 @@
     el.className = 'alert';
     el.innerHTML = `
       <div class="kicker">HAVI · ${time(inc.at)}</div>
-      <h1 id="alert-title">Your mother ${what} and isn't answering.</h1>
-      <p>Mia's watch ${inc.type === 'sos' ? 'sent an SOS' : inc.type === 'help_request' ? 'call ended with a request for help' : 'detected a fall'} at ${time(inc.at)}. She didn't pick up within ${state.meta.noAnswerSeconds} seconds.</p>
+      <h1 id="alert-title">${inc.type === 'sos' ? 'Your mother pressed her alarm button.' : `Your mother ${what} and isn't answering.`}</h1>
+      <p>${inc.type === 'sos' ? `Mia asked for help at ${time(inc.at)}.` : inc.type === 'help_request' ? `Mia asked for help during her call at ${time(inc.at)}.` : `Mia's watch detected a fall at ${time(inc.at)}. She didn't pick up within ${state.meta.noAnswerSeconds} seconds.`}</p>
       <div class="addr">${esc(state.persona.address)}</div>
       <p style="font-size:15px;opacity:.85">${esc(state.persona.neighbour)}</p>
       ${calling ? `<div class="calling">${calling}</div>` : ''}
@@ -226,17 +226,17 @@
   });
   sim.fall.addEventListener('change', () => {
     if (sim.fall.checked) {
-      act(api('/api/signals', { type: 'fall', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('Fall signal sent — calling Mia'); poll(); }));
+      act(api('/api/signals', { type: 'fall', simulate: sim.live.checked ? undefined : {} }).then((r) => { toast(r.ignored ?? 'Fall detected — HAVI is calling Mia first'); poll(); }));
       setTimeout(() => (sim.fall.checked = false), 4000);
     }
   });
-  $('#sos').addEventListener('click', () => act(api('/api/signals', { type: 'sos', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('SOS sent — calling Mia'); show('home'); poll(); })));
+  $('#sos').addEventListener('click', () => act(api('/api/signals', { type: 'sos', simulate: sim.live.checked ? undefined : {} }).then((r) => { toast(r.ignored ?? 'SOS — HAVI is calling Tom now'); show('home'); poll(); })));
   $('#checkin').addEventListener('click', () =>
     act(api('/api/calls', { kind: 'checkin', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('HAVI is calling Mia'); show('home'); poll(); })),
   );
   $$('[data-scenario]').forEach((b) =>
     b.addEventListener('click', () =>
-      act(api(`/api/demo/scenario/${b.dataset.scenario}`, { live: sim.live.checked }).then((r) => { toast(`${r.scenario} — ${r.live ? 'LIVE' : 'simulated'}`); show('home'); poll(); })),
+      act(api(`/api/demo/scenario/${b.dataset.scenario}`, { live: sim.live.checked }).then((r) => { toast(r.result?.ignored ?? `${r.scenario} — ${r.live ? 'LIVE' : 'simulated'}`); show('home'); poll(); })),
     ),
   );
   $('#reset').addEventListener('click', () => act(api('/api/reset').then(() => { toast('Demo reset'); selectedCall = null; poll(); })));
