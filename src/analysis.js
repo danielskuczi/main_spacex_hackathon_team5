@@ -206,9 +206,14 @@ ${transcriptToText(messages) || '(empty)'}`;
           if (fallback.outcome !== 'unclear') out.outcome = fallback.outcome;
           out.flags = fallback.flags;
           out.newFacts = fallback.newFacts;
-        } else if (out.outcome === 'needs_help' && fallback.outcome !== 'needs_help') {
-          const saidGettingHelp = (input.messages ?? []).some((m) => m.role === 'assistant' && /getting help/i.test(m.text));
-          if (!saidGettingHelp) out.outcome = 'ok';
+        } else {
+          if (out.outcome === 'needs_help' && fallback.outcome !== 'needs_help') {
+            const saidGettingHelp = (input.messages ?? []).some((m) => m.role === 'assistant' && /getting help/i.test(m.text));
+            if (!saidGettingHelp) out.outcome = 'ok';
+          }
+          // D-041: the recurring-complaint flag reads the same every run; code counts, the model adds the other flags
+          const pinned = fallback.flags.filter((f) => /^Dizzy \d+×/.test(f.text));
+          if (pinned.length) out.flags = [...pinned, ...out.flags.filter((f) => !/dizz/i.test(f.text))];
         }
         return out;
       } catch (err) {

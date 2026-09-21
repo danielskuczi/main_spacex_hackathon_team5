@@ -117,5 +117,7 @@ test('B05b code, not the model, has the last word on the outcome enum (rule 1)',
   assert.deepEqual(tom.newFacts, [], 'escalation calls never write into Mia\'s memory');
   const mia = await lying('needs_help').analyze({ call: { kind: 'checkin', toName: 'Mia' }, persona, messages: SCRIPTS['checkin-dizzy'], vitals });
   assert.equal(mia.outcome, 'ok', '"dizzy again" is a flag, not an emergency');
+  assert.equal(mia.flags[0].text, 'Dizzy 3× this week — suggest calling the GP', 'the stage flag is pinned by code (D-041)');
+  assert.equal(mia.flags.filter((f) => /dizz/i.test(f.text)).length, 1, 'the model\'s own dizzy flag is dropped');
   assert.equal(mia.summary, 'S');
 });

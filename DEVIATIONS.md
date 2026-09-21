@@ -41,3 +41,9 @@
 16. **Transcripts go to a third-party Claude reseller** (D-032), not to Anthropic or OpenAI directly. Fine for the fictional persona. It would not pass the privacy question for real users; say so if the jury asks.
 
 17. **The TTS says "Bellicca" for "Belletje"** in the first live call. Not fixed; see the Phase 1 gate options.
+
+## 2026-09-21 · Freeze (17:25)
+
+18. **Max's frontend restyle did not ship.** His AI-generated version broke, so the stage app is the working baseline in `public/` (plus the D-039/D-040 alert changes). MAX.md items stay open; the B18 contract is intact.
+
+19. **"Help on the way" lands when Tom's call ends,** not at the moment he says yes (the outcome comes from the end-of-call report). On stage Tom hangs up right after HAVI's thank-you, or taps "I'm going now" in the app, which is instant.
