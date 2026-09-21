@@ -49,3 +49,14 @@ F1 ✓ (B06 < 3 s) · F2 ✓ ordering (B07), wall-clock pending live · F3 ✓ (
 ### Self-score
 Conversation 7 (live, memory, gentle; one advice slip) · Proactivity 7 · Escalation 4 (simulated only) · Family insight 7 · Glanceability 7 · Robustness 7 (live + simulated fallback, rehearsed once) · Honesty 10 ("live web call" labels) · Accessibility 7.
 Row below 7: Escalation. Cheapest +2: run scenario 2 live with Max on `?who=tom` (Phase 3).
+
+## Phases 2–3 — Memory, summaries, live escalation · 2026-09-21 17:15
+
+### What runs (all live web calls, D-030)
+- **Phase 2, 16:53:** check-in used memory unprompted ("How did Lotte's exam go yesterday? You were nervous for her."), only the GP line on dizziness, LLM summary + "Dizzy … suggest calling the GP" flag, status "Needs attention". No medication advice after the D-033/B03 fix.
+- **Phase 3, 17:14:** fall → Mia's page rang → no pickup → **Tom's call placed at +15.0 s, answered at +20.9 s** (F2 ≤ 45 s met, stopwatch = server timestamps) → "Yep." → outcome `yes` → Help on the way. SOS now goes straight to Tom (D-039).
+- Battery 30/30.
+
+### Self-score
+Conversation 8 (memory, no numbers, GP line only; voice slightly stiff) · Proactivity 7 (live proactive run not yet captured) · Escalation 8 (full loop live by voice; Help on the way lands at call end, not at the "yes") · Family insight 9 (live LLM summary + GP flag; wording not yet pinned) · Glanceability 7 · Robustness 7 (live + simulated switch; no video yet) · Honesty 10 · Accessibility 7.
+Cheapest +2s: record the backup video (Robustness); run Scenario 1 live once (Proactivity).
