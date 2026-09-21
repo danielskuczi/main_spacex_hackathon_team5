@@ -25,6 +25,7 @@ export function buildCallPayload(call, config) {
     metadata: { belletjeCallId: call.id, kind: call.kind, incidentId: call.incidentId ?? null },
     assistant: {
       name: isCheckin ? 'Belletje check-in' : 'Belletje escalation',
+      metadata: { belletjeCallId: call.id },
       firstMessage: call.firstMessage,
       firstMessageMode: 'assistant-speaks-first',
       model: {
@@ -52,20 +53,23 @@ export function parseWebhook(body) {
   if (!msg || typeof msg !== 'object') return null;
   const providerCallId = msg.call?.id ?? msg.callId ?? null;
   if (!providerCallId) return null;
+  const belletjeCallId = msg.call?.metadata?.belletjeCallId ?? msg.assistant?.metadata?.belletjeCallId ?? msg.call?.assistant?.metadata?.belletjeCallId ?? null;
   switch (msg.type) {
     case 'status-update':
       if (msg.status === 'ended') return null; // the end-of-call-report carries the transcript
-      return { providerCallId, type: 'status', status: msg.status, endedReason: msg.endedReason };
+      return { providerCallId, belletjeCallId, type: 'status', status: msg.status, endedReason: msg.endedReason };
     case 'transcript':
       if (msg.transcriptType && msg.transcriptType !== 'final') return null;
       return {
         providerCallId,
+        belletjeCallId,
         type: 'transcript',
         append: { role: msg.role === 'user' ? 'user' : 'assistant', text: String(msg.transcript ?? '').trim() },
       };
     case 'end-of-call-report':
       return {
         providerCallId,
+        belletjeCallId,
         type: 'ended',
         endedReason: msg.endedReason,
         messages: normaliseTranscript({ messages: msg.artifact?.messages ?? msg.messages, transcript: msg.artifact?.transcript ?? msg.transcript }),
@@ -88,8 +92,13 @@ export function createVapiVoice(config, { fetchImpl = globalThis.fetch } = {}) {
       return headers['x-vapi-secret'] === vapi.webhookSecret;
     },
     async placeCall(call) {
-      if (!vapi.apiKey || !vapi.phoneNumberId) throw new Error('Vapi not configured: set VAPI_API_KEY and VAPI_PHONE_NUMBER_ID');
-      if (!call.phone) throw new Error(`No phone number for ${call.toName} (set ${call.to.toUpperCase()}_PHONE)`);
+      if (!(vapi.phoneNumberId && call.phone)) {
+        // ponytail: no phone line → web call (D-030). public/phone.html rings, then starts it in the browser with the public key.
+        if (vapi.publicKey) return { providerCallId: `web:${call.id}`, provider: 'vapi', web: true };
+        if (!vapi.phoneNumberId) throw new Error('Vapi not configured: set VAPI_PHONE_NUMBER_ID, or VAPI_PUBLIC_KEY for web calls');
+        throw new Error(`No phone number for ${call.toName} (set ${call.to.toUpperCase()}_PHONE)`);
+      }
+      if (!vapi.apiKey) throw new Error('Vapi not configured: set VAPI_API_KEY');
       const res = await fetchImpl(`${vapi.baseUrl}/call`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${vapi.apiKey}` },

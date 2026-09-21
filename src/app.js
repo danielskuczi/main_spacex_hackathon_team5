@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseWebhook } from './voice/vapi.js';
+import { parseWebhook, buildCallPayload } from './voice/vapi.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -80,6 +80,37 @@ export function createApp({ engine, store, config, voices }) {
     // Reply fast; Vapi retries slow webhooks. Rules run after the response.
     res.json({ received: evt.type });
     await engine.record(engine.handleVoiceEvent(evt));
+  }));
+
+  // 4) web calls (D-030): public/phone.html is a teammate's "phone"; it rings for calls that have no phone line.
+  const RINGING = ['queued', 'ringing'];
+  const webCall = (id) => {
+    const c = store.state.calls.find((x) => x.id === id && x.web);
+    if (!c) throw Object.assign(new Error('web call not found'), { status: 404 });
+    return c;
+  };
+  app.get('/api/phone/:who', (req, res) => {
+    const c = store.state.calls.findLast((x) => x.web && x.to === req.params.who && RINGING.includes(x.status));
+    res.json({ publicKey: config.vapi.publicKey || null, call: c ? { id: c.id, kind: c.kind, toName: c.toName } : null });
+  });
+  app.post('/api/phone/calls/:id/answer', wrap(async (req, res) => {
+    const c = webCall(req.params.id);
+    if (!RINGING.includes(c.status)) throw Object.assign(new Error('missed: this call is no longer ringing'), { status: 409 });
+    await engine.record(engine.handleVoiceEvent({ providerCallId: c.providerCallId, type: 'status', status: 'in-progress' }));
+    res.json({ assistant: buildCallPayload(c, config).assistant });
+  }));
+  app.post('/api/phone/calls/:id/started', wrap(async (req, res) => {
+    const c = webCall(req.params.id);
+    if (req.body?.providerCallId && String(c.providerCallId).startsWith('web:')) {
+      c.providerCallId = String(req.body.providerCallId);
+      store.save();
+    }
+    res.json({ ok: true });
+  }));
+  app.post('/api/phone/calls/:id/decline', wrap(async (req, res) => {
+    const c = webCall(req.params.id);
+    await engine.record(engine.handleVoiceEvent({ providerCallId: c.providerCallId, type: 'ended', endedReason: 'customer-did-not-answer', messages: [] }));
+    res.json({ ok: true });
   }));
 
   app.post('/api/incidents/:id/respond', wrap(async (req, res) => {

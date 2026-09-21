@@ -132,6 +132,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     try {
       const res = await provider.placeCall(call, { simulate: simulate ?? {} });
       call.providerCallId = res.providerCallId;
+      if (res.web) call.web = true;
       if (kind !== 'checkin') armNoAnswerTimer(call);
       save();
     } catch (err) {
@@ -170,7 +171,12 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
   }
 
   async function handleVoiceEvent(evt) {
-    const call = findCall(evt.providerCallId);
+    let call = findCall(evt.providerCallId);
+    if (!call && evt.belletjeCallId) {
+      call = callById(evt.belletjeCallId);
+      if (call?.web) call.providerCallId = evt.providerCallId;
+      else call = null;
+    }
     if (!call) {
       log.warn(`voice event for unknown call ${evt.providerCallId}`);
       return null;

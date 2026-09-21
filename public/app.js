@@ -82,7 +82,7 @@
     renderSimulator();
   }
 
-  const badge = (c) => (c.simulated ? '<span class="tag sim">simulated call</span>' : '<span class="tag live">live call</span>');
+  const badge = (c) => (c.simulated ? '<span class="tag sim">simulated call</span>' : c.web ? '<span class="tag live">live web call</span>' : '<span class="tag live">live call</span>');
   const callTitle = (c) => ({ checkin: `Check-in with ${c.toName}`, escalation_mia: `Safety call to ${c.toName}`, escalation_tom: `Call to ${c.toName}`, escalation_neighbour: `Call to ${c.toName}` })[c.kind] ?? c.kind;
   const callState = (c) => ({ queued: 'dialling…', ringing: 'ringing…', 'in-progress': 'on the phone…', ended: c.durationSeconds != null ? `${c.durationSeconds}s` : 'ended', 'no-answer': 'no answer', failed: 'could not call' })[c.status] ?? c.status;
 

@@ -23,3 +23,11 @@
 9. **Every live call opens with Twilio's trial message and a keypress** (D-014). Layla and Max must press a key after answering. Not a simulation, so no label is needed, but rehearse it. It may also push Tom's leg past the 15 s rule (D-020).
 
 10. **The Phase 0 screenshots in `DELTA.md` are not in the repo.** DELTA describes captures at 390×844, but no image files exist. Treat those rows as unproven until they are re-captured (PLAN §10: claims without proof).
+
+## 2026-09-21 · Phase 1 pivot (16:25)
+
+11. **No phone line: calls are web calls** (D-030). The line "on the phone she already has" is not literally true today. The app labels these calls "live web call", the phone page says "not a phone line", and we say so on stage. Everything after the ring (AI voice, transcript, summary, rules) is real.
+
+12. **`public/phone.html` loads the Vapi browser library from jsdelivr** (`@vapi-ai/web@2.7.1`). F6 is about the app shell (`index.html`, `app.js`, `styles.css`), which still has no external dependencies (B18). A web call needs internet anyway.
+
+13. **The phone endpoints have no auth.** Anyone with the tunnel URL can answer a ringing call and receive the assistant prompt (fictional persona only). Auth is on the PLAN §1 cut list; the tunnel URL is not published.

@@ -195,3 +195,40 @@ test('B18 the app shell: named controls exist, no CDN, polls every 2 s', async (
   assert.equal((await fetch(base + '/app.js')).status, 200);
   assert.equal((await fetch(base + '/api/health')).status, 200);
 });
+
+test('B19 web calls (D-030): no phone line → phone page rings, answer returns the assistant, webhook lands, decline escalates to Tom', async () => {
+  const env = { VOICE_PROVIDER: 'vapi', VAPI_API_KEY: 'k', VAPI_PUBLIC_KEY: 'pub', VAPI_WEBHOOK_SECRET: 'shh', ESCALATION_NO_ANSWER_MS: '5000' };
+  const vapi = createVapiVoice(loadConfig(env), { fetchImpl: async () => assert.fail('a web call must not hit the Vapi REST API') });
+  const { json, store } = await boot({ env, voices: { vapi } });
+  const H = { 'x-vapi-secret': 'shh' };
+
+  const started = await json('/api/calls', { method: 'POST', body: { kind: 'checkin' } });
+  assert.equal(started.body.simulated, false);
+  assert.equal(started.body.web, true);
+  let phone = await json('/api/phone/mia');
+  assert.equal(phone.body.publicKey, 'pub');
+  assert.equal(phone.body.call.id, started.body.id);
+
+  const answered = await json(`/api/phone/calls/${started.body.id}/answer`, { method: 'POST', body: {} });
+  assert.equal(answered.body.assistant.metadata.belletjeCallId, started.body.id);
+  assert.match(answered.body.assistant.model.messages[0].content, /Mia/);
+  assert.ok(store.state.calls[0].answeredAt);
+  assert.equal((await json('/api/phone/mia')).body.call, null, 'an answered call stops ringing');
+  assert.equal((await json(`/api/phone/calls/${started.body.id}/answer`, { method: 'POST', body: {} })).status, 409);
+
+  await json(`/api/phone/calls/${started.body.id}/started`, { method: 'POST', body: { providerCallId: 'vapi_web_1' } });
+  await json('/api/webhooks/vapi', { method: 'POST', headers: H, body: { message: { type: 'end-of-call-report', endedReason: 'customer-ended-call', transcript: 'AI: Hello Mia\nUser: I felt dizzy again this morning.', call: { id: 'vapi_web_1' } } } });
+  await waitFor(() => store.state.calls[0].analysis, { label: 'analysis of the web call' });
+
+  // fall → Mia's phone page rings → she declines → Tom's phone page rings (rules unchanged)
+  await json('/api/signals', { method: 'POST', body: { type: 'fall' } });
+  const miaLeg = await waitFor(async () => (await json('/api/phone/mia')).body.call, { label: 'Mia rings' });
+  assert.equal(miaLeg.kind, 'escalation_mia');
+  await json(`/api/phone/calls/${miaLeg.id}/decline`, { method: 'POST', body: {} });
+  const tomLeg = await waitFor(async () => (await json('/api/phone/tom')).body.call, { label: 'Tom rings' });
+
+  // a webhook that beats the page's "started" report still finds the call via metadata
+  await json('/api/webhooks/vapi', { method: 'POST', headers: H, body: { message: { type: 'status-update', status: 'in-progress', call: { id: 'vapi_web_2', metadata: { belletjeCallId: tomLeg.id } } } } });
+  const tom = await waitFor(() => store.state.calls.find((c) => c.id === tomLeg.id && c.answeredAt), { label: 'Tom answered via webhook' });
+  assert.equal(tom.providerCallId, 'vapi_web_2');
+});

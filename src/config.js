@@ -26,10 +26,11 @@ export function loadConfig(env = process.env) {
     vapi: {
       baseUrl: str(env.VAPI_BASE_URL, 'https://api.vapi.ai'),
       apiKey: str(env.VAPI_API_KEY),
+      publicKey: str(env.VAPI_PUBLIC_KEY),
       phoneNumberId: str(env.VAPI_PHONE_NUMBER_ID),
       webhookSecret: str(env.VAPI_WEBHOOK_SECRET),
       voiceProvider: str(env.VAPI_VOICE_PROVIDER, 'vapi'),
-      voiceId: str(env.VAPI_VOICE_ID, 'Paige'),
+      voiceId: str(env.VAPI_VOICE_ID, 'Clara'),
       model: str(env.VAPI_MODEL, 'gpt-4o'),
       modelProvider: str(env.VAPI_MODEL_PROVIDER, 'openai'),
     },

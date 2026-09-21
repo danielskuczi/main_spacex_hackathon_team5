@@ -7,7 +7,7 @@ Read order for a fresh session: PLAN.md → DECISIONS.md → DEVIATIONS.md → t
 npm install                         # once (Node >= 22; only dependency is express)
 cp .env.example .env                # fill keys; with none, everything runs simulated
 npm start                           # http://localhost:3000  (npm run dev = --watch)
-npm test                            # the battery, 26 tests, < 5 s, must be green at every phase close
+npm test                            # the battery, 27 tests, < 5 s, must be green at every phase close
 node scripts/scenario.js 1          # proactive check-in (simulated)   --live for real calls
 node scripts/scenario.js 2          # fall → no answer → Tom             --watch=90 to follow longer
 npm run reset                       # wipe demo state (server running or not)
@@ -38,7 +38,7 @@ Dev pacing: `ESCALATION_NO_ANSWER_MS=8000 MOCK_RING_MS=1500 MOCK_TALK_MS=4000 np
 9. Prefer the more ambitious option that still ships by the phase deadline; cut order if late: escalation call → proactive scenario as a clip. The live check-in call must work.
 
 ## Stage checklist (Phase 4)
-- `.env` has PUBLIC_URL (tunnel), VAPI_*, MIA_PHONE, TOM_PHONE, OPENAI_API_KEY; `curl $PUBLIC_URL/api/health` shows `liveCalls: true`.
-- Phones on speaker next to the mic; Layla's phone = Mia, Max's phone = Tom, app open on Max's phone via the tunnel URL.
+- `.env` has PUBLIC_URL (tunnel), VOICE_PROVIDER=vapi, VAPI_API_KEY, VAPI_PUBLIC_KEY, OPENAI_*; `curl $PUBLIC_URL/api/health` shows `liveCalls: true`.
+- No phone line (D-030): Layla's phone opens `$PUBLIC_URL/phone.html?who=mia`, Max's `?who=tom`; tap "Switch this phone on" once. Speaker next to the mic.
 - Watch tab → "Live phone calls" on → Scenario 1, then Scenario 2. If a live leg fails: switch "Live phone calls" off and rerun — simulated, labelled, still real downstream.
 - Backup video recorded before 17:45.

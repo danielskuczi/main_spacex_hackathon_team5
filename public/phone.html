@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101a14" />
+  <title>Belletje — phone</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101a14; --fg: #f3f1ea; --muted: #a9b3ab; --green: #2fb36b; --red: #d9483b; --gold: #f2c14e; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 48px 20px 40px; text-align: center; }
+    .who { color: var(--muted); font-size: 15px; }
+    .caller { margin-top: 18vh; }
+    .avatar { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 18px; background: radial-gradient(circle, var(--gold) 0 34%, #1f3d2b 35%); }
+    .ringing .avatar { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 50% { transform: scale(1.08); box-shadow: 0 0 0 14px rgba(242, 193, 78, .15); } }
+    h1 { font-size: 30px; margin: 0 0 6px; font-weight: 600; }
+    .state { color: var(--muted); font-size: 18px; min-height: 26px; }
+    .caption { max-width: 34ch; margin: 22px auto 0; font-size: 17px; min-height: 52px; }
+    .actions { display: flex; gap: 48px; justify-content: center; }
+    button { font: inherit; color: #fff; border: 0; cursor: pointer; min-height: 44px; }
+    .round { width: 76px; height: 76px; border-radius: 50%; font-size: 15px; font-weight: 600; }
+    .answer { background: var(--green); }
+    .decline, .hangup { background: var(--red); }
+    .arm { background: #1f3d2b; border: 2px solid var(--gold); border-radius: 14px; padding: 16px 22px; font-size: 18px; width: 100%; max-width: 340px; }
+    .label { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
+    .note { font-size: 13px; color: var(--muted); max-width: 36ch; margin: 18px auto 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main id="screen" data-testid="web-phone" aria-label="Web phone">
+    <div class="who" id="who"></div>
+
+    <div class="caller">
+      <div class="avatar" aria-hidden="true"></div>
+      <h1 id="title">Belletje</h1>
+      <div class="state" id="state" role="status" aria-live="polite">Tap below to switch this phone on</div>
+      <div class="caption" id="caption" aria-live="polite"></div>
+    </div>
+
+    <div>
+      <button id="arm" class="arm" aria-label="Switch phone on">Switch this phone on</button>
+      <div class="actions" id="ring-actions" hidden>
+        <div><button id="decline" class="round decline" aria-label="Decline call">✕</button><span class="label">Decline</span></div>
+        <div><button id="answer" class="round answer" aria-label="Answer call">✆</button><span class="label">Answer</span></div>
+      </div>
+      <div class="actions" id="call-actions" hidden>
+        <div><button id="hangup" class="round hangup" aria-label="Hang up">✕</button><span class="label">Hang up</span></div>
+      </div>
+      <p class="note">Web call: a live AI voice over the internet, not a phone line. In production Belletje rings her ordinary phone.</p>
+    </div>
+  </main>
+
+  <script type="module">
+    const who = new URLSearchParams(location.search).get('who') || 'mia';
+    const names = { mia: 'Mia', tom: 'Tom', neighbour: 'Mr Hendriks' };
+    const $ = (id) => document.getElementById(id);
+    $('who').textContent = `${names[who] ?? who}'s phone`;
+    // ngrok's free tier shows a warning page to browsers; this header skips it for our API calls.
+    const H = { 'content-type': 'application/json', 'ngrok-skip-browser-warning': '1' };
+    const api = async (path, body) => {
+      const res = await fetch(path, { method: body ? 'POST' : 'GET', headers: H, body: body ? JSON.stringify(body) : undefined });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    };
+
+    let mode = 'off'; // off | idle | ringing | connecting | in-call
+    let ringing = null; // { id, kind }
+    let vapi = null;
+    let Vapi = null;
+    let audio = null;
+    let ringTimer = null;
+    let clock = null;
+
+    function show(next, state, caption = '') {
+      mode = next;
+      $('screen').className = next === 'ringing' ? 'ringing' : '';
+      $('state').textContent = state;
+      $('caption').textContent = caption;
+      $('arm').hidden = next !== 'off';
+      $('ring-actions').hidden = next !== 'ringing';
+      $('call-actions').hidden = !['connecting', 'in-call'].includes(next);
+    }
+
+    // Ringtone: two-tone WebAudio burst every 2 s (audio is unlocked by the "switch on" tap).
+    function ring(on) {
+      clearInterval(ringTimer);
+      navigator.vibrate?.(0);
+      if (!on || !audio) return;
+      const burst = () => {
+        const t = audio.currentTime;
+        for (const [f, start] of [[440, 0], [480, 0], [440, 0.5], [480, 0.5]]) {
+          const o = audio.createOscillator(), g = audio.createGain();
+          o.frequency.value = f; g.gain.value = 0.08;
+          o.connect(g).connect(audio.destination);
+          o.start(t + start); o.stop(t + start + 0.4);
+        }
+        navigator.vibrate?.([400, 200, 400]);
+      };
+      burst();
+      ringTimer = setInterval(burst, 2000);
+    }
+
+    $('arm').onclick = async () => {
+      try {
+        audio = new (window.AudioContext || window.webkitAudioContext)();
+        const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mic.getTracks().forEach((t) => t.stop());
+        const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.7.1/+esm');
+        Vapi = mod.default?.default ?? mod.default;
+        show('idle', 'Waiting for Belletje…');
+        poll();
+      } catch (err) {
+        show('off', `Could not switch on: ${err.message}. Allow the microphone and try again.`);
+      }
+    };
+
+    async function poll() {
+      try {
+        const { call, publicKey } = await api(`/api/phone/${who}`);
+        if (mode === 'idle' && call) {
+          ringing = { ...call, publicKey };
+          show('ringing', call.kind === 'checkin' ? 'Incoming call — morning check-in' : 'Incoming call — urgent');
+          ring(true);
+        } else if (mode === 'ringing' && (!call || call.id !== ringing.id)) {
+          ring(false);
+          show('idle', 'Missed call from Belletje');
+        }
+      } catch { /* server restarting or offline — keep polling */ }
+      setTimeout(poll, 1000);
+    }
+
+    $('decline').onclick = async () => {
+      ring(false);
+      show('idle', 'Declined');
+      await api(`/api/phone/calls/${ringing.id}/decline`, {}).catch(() => {});
+    };
+
+    $('answer').onclick = async () => {
+      ring(false);
+      show('connecting', 'Connecting…');
+      try {
+        if (!ringing.publicKey) throw new Error('VAPI_PUBLIC_KEY is not set on the server');
+        const { assistant } = await api(`/api/phone/calls/${ringing.id}/answer`, {});
+        vapi = new Vapi(ringing.publicKey);
+        vapi.on('call-start', () => {
+          const t0 = Date.now();
+          clearInterval(clock);
+          clock = setInterval(() => {
+            const s = Math.round((Date.now() - t0) / 1000);
+            if (mode === 'in-call') $('state').textContent = `On the phone · ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+          }, 1000);
+          show('in-call', 'On the phone · 0:00');
+        });
+        vapi.on('message', (m) => {
+          if (m.type === 'transcript' && m.transcriptType === 'final') $('caption').textContent = `${m.role === 'user' ? 'You' : 'Belletje'}: ${m.transcript}`;
+        });
+        vapi.on('call-end', () => {
+          clearInterval(clock);
+          show('idle', 'Call ended');
+        });
+        vapi.on('error', (e) => console.warn('vapi error', e));
+        const call = await vapi.start(assistant);
+        if (call?.id) await api(`/api/phone/calls/${ringing.id}/started`, { providerCallId: call.id }).catch(() => {});
+      } catch (err) {
+        clearInterval(clock);
+        show('idle', `Call failed: ${err.message}`);
+      }
+    };
+
+    $('hangup').onclick = () => {
+      vapi?.stop();
+      show('idle', 'Call ended');
+    };
+  </script>
+</body>
+</html>

@@ -51,9 +51,9 @@ The rules below are what the AI gets now. Cross out, reword or add lines.
 **First words Belletje says when Mia picks up** (now: "Hello Mia, it's Belletje. Is now a good moment for our little chat?") →
 
 ## Part 3 — Stage lines for you as Mia (rehearse with Daniel)
-Every live call starts with a Twilio trial message: **press any key**, then Belletje speaks.
-- **Scenario 1 (check-in):** answer, press a key, chat. You *must* say you slept badly and that you **"felt dizzy again"** this morning (that triggers the flag). Mention Lotte's exam.
-- **Scenario 2 (fall):** your phone rings. **Don't answer.** After 15 s, Max's phone rings.
+Setup, once: on your phone open **`<tunnel URL>/phone.html?who=mia`** (Daniel sends the link). If ngrok shows a warning page, tap **Visit Site**. Tap **Switch this phone on** and allow the microphone. Keep the page open, screen on, volume up.
+- **Scenario 1 (check-in):** the page rings. Tap **Answer** and chat. You *must* say you slept badly and that you **"felt dizzy again"** this morning (that triggers the flag). Mention Lotte's exam.
+- **Scenario 2 (fall):** the page rings. **Don't answer.** After 15 s, Max's phone page rings.
 
 ## Part 4 — Research (a number + a source link for each)
 | # | Question | Answer | Source URL |

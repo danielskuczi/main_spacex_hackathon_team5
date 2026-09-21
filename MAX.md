@@ -70,5 +70,10 @@ Shows on Tom's phone when the rules escalate. This is the money shot.
 - [ ] Button **"Belletje calls Mia now"** (`aria-label="Start check-in call"`)
 - [ ] Demo card: **Live phone calls** switch (`Live calls toggle`), **Scenario 1** (`Run scenario 1`), **Scenario 2** (`Run scenario 2`), **Reset demo** (`Reset demo`)
 
+## 6. The phone page (`public/phone.html`, new, D-030)
+There is no phone line (Twilio is paid), so calls ring on a web page instead. Your phone opens `<tunnel URL>/phone.html?who=tom`, Layla's opens `?who=mia`. It rings, you tap **Answer**, and you talk to Belletje live in the browser.
+- [ ] Restyle it like an incoming call screen, but keep the `aria-label`s (`Switch phone on`, `Answer call`, `Decline call`, `Hang up`) and the element ids used by its script.
+- [ ] Keep the note "Web call … not a phone line". The app's call badge now says **"live web call"** for these calls.
+
 ## Before you push
 `npm test` → 26/26 green. Open it on your phone at 390 px wide and run Scenario 2 once.
