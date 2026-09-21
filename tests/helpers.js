@@ -13,6 +13,7 @@ export function testEnv(overrides = {}) {
   return {
     VOICE_PROVIDER: 'mock',
     ESCALATION_NO_ANSWER_MS: '120',
+    ESCALATION_CONTACT_NO_ANSWER_MS: '120',
     MOCK_RING_MS: '30',
     MOCK_TALK_MS: '120',
     MOCK_NO_ANSWER_MS: '5000',

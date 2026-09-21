@@ -49,6 +49,8 @@ export function loadConfig(env = process.env) {
     escalation: {
       // "No pickup within 30 seconds triggers a call to Tom" — PLAN.md §6
       noAnswerMs: num(env.ESCALATION_NO_ANSWER_MS, 30000),
+      // Tom and the neighbour have to notice the ring first (D-038); Mia's leg keeps noAnswerMs.
+      contactNoAnswerMs: num(env.ESCALATION_CONTACT_NO_ANSWER_MS, 30000),
       checkinCooldownMs: num(env.CHECKIN_COOLDOWN_MS, 10 * 60 * 1000),
       maxCallSeconds: num(env.MAX_CALL_SECONDS, 240),
     },

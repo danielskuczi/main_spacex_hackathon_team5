@@ -149,6 +149,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
 
   function armNoAnswerTimer(call) {
     clearTimer(call.id);
+    const ms = call.kind === 'escalation_mia' ? config.escalation.noAnswerMs : config.escalation.contactNoAnswerMs;
     const t = setTimeout(() => {
       timers.delete(call.id);
       const c = callById(call.id);
@@ -158,14 +159,14 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
       c.endedReason = 'no-answer-timeout';
       addEvent({
         type: 'call-ended',
-        title: `${c.toName} didn't pick up within ${Math.round(config.escalation.noAnswerMs / 1000)} s`,
+        title: `${c.toName} didn't pick up within ${Math.round(ms / 1000)} s`,
         callId: c.id,
         incidentId: c.incidentId,
         severity: 'high',
       });
       save();
       record(onNoAnswer(c));
-    }, config.escalation.noAnswerMs);
+    }, ms);
     t.unref?.();
     timers.set(call.id, t);
   }
@@ -508,6 +509,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
       sms: notifier.live,
       webhookUrl: config.publicUrl ? `${config.publicUrl}/api/webhooks/vapi` : null,
       noAnswerSeconds: Math.round(config.escalation.noAnswerMs / 1000),
+      contactNoAnswerSeconds: Math.round(config.escalation.contactNoAnswerMs / 1000),
       language: config.callLanguage,
       phones: { mia: Boolean(config.phones.mia), tom: Boolean(config.phones.tom), neighbour: Boolean(config.phones.neighbour) },
     };

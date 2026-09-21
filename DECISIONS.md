@@ -74,3 +74,7 @@ D-034 · 2026-09-21 · agent (under D-024) · Layla's LAYLA.md Parts 1–2 (push
 D-035 · 2026-09-21 · Daniel · Voice is Vapi `Emma` ("warm, conversational"). Supersedes D-031. · Daniel's pick at the Phase 1 gate.
 
 D-036 · 2026-09-21 · Daniel (from Layla's sheet) · The product and the voice are called **HAVI** (was Belletje). Renamed in every prompt, spoken first message, app screen, phone page, timeline/SMS text, mock transcript, test, README, MAX.md and CLAUDE.md. Kept: internal identifiers (`belletjeCallId`, package name) and the append-only ledgers (PLAN, PROJECT, RESUME, DECISIONS, DEVIATIONS, DELTA), which keep the old name as history. · Team naming decision; also ends the "Bellicca" pronunciation problem (DEVIATIONS 17).
+
+D-037 · 2026-09-21 · Daniel · Voice back to Vapi `Clara`. Supersedes D-035. · Daniel's pick after hearing Emma.
+
+D-038 · 2026-09-21 · Daniel (option A) · Separate no-answer windows: Mia's safety call keeps `ESCALATION_NO_ANSWER_MS` (15 s on stage); Tom's and the neighbour's legs use `ESCALATION_CONTACT_NO_ANSWER_MS` (default 30 s). Refines D-020. · Live run 17:02: Tom's page rang for 15 s and nobody answered in time, so the loop skipped to the neighbour and the alarm centre. A person has to notice a ring before answering. B19b pins it.

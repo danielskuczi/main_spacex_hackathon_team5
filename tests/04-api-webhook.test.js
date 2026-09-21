@@ -232,3 +232,14 @@ test('B19 web calls (D-030): no phone line → phone page rings, answer returns 
   const tom = await waitFor(() => store.state.calls.find((c) => c.id === tomLeg.id && c.answeredAt), { label: 'Tom answered via webhook' });
   assert.equal(tom.providerCallId, 'vapi_web_2');
 });
+
+test('B19b Tom and the neighbour get their own, longer no-answer window (D-038)', async () => {
+  const env = { VOICE_PROVIDER: 'vapi', VAPI_API_KEY: 'k', VAPI_PUBLIC_KEY: 'pub', ESCALATION_NO_ANSWER_MS: '100', ESCALATION_CONTACT_NO_ANSWER_MS: '700' };
+  const { json, store } = await boot({ env, voices: { vapi: createVapiVoice(loadConfig(env)) } });
+  await json('/api/signals', { method: 'POST', body: { type: 'fall' } }); // web calls never answer by themselves
+  const tom = await waitFor(() => store.state.calls.find((c) => c.kind === 'escalation_tom'), { label: 'Tom called after Mia\'s 100 ms' });
+  await new Promise((r) => setTimeout(r, 300));
+  assert.equal(store.state.calls.find((c) => c.id === tom.id).status, 'queued', 'Tom is still ringing after Mia\'s window');
+  await waitFor(() => store.state.calls.find((c) => c.kind === 'escalation_neighbour'), { label: 'neighbour after Tom\'s 700 ms' });
+  assert.ok(store.state.events.some((e) => e.title === "Tom didn't pick up within 1 s"), 'the timeline names Tom\'s own window');
+});
