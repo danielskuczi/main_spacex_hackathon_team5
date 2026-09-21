@@ -26,3 +26,35 @@ D-011 · 2026-09-21 · agent (under PLAN §1) · Stage language default is Engli
 D-012 · 2026-09-21 · agent (under PLAN §7) · The care-circle app is the working baseline that Max restyles in place; `aria-label`s, `data-testid`s, the 2 s poll and `/api/state` shape are the contract (B18). · Two frontends on one afternoon is how the app connection fails at 16:45.
 
 <!-- Daniel's entries start below. Suggested next: D-013 voice provider (INPUTS A1), D-014 language (A4), D-015 hosting (C1), D-016 no-answer seconds on stage (D4). -->
+
+D-013 · 2026-09-21 · Daniel (INPUTS A1, A5, B2) · Voice is Vapi (new account, free credit), voice `Paige`, in-call model `gpt-4o`. · Provider already written; no reason to switch.
+
+D-014 · 2026-09-21 · Daniel (INPUTS A2, A3) · Telephony is a new Twilio **trial** account, not upgraded. One US number bought with trial credit and imported into Vapi; Netherlands allowed for voice and SMS; Layla's, Max's and Daniel's phones verified as caller IDs. Accepted cost: every answered call opens with Twilio's trial message and needs a keypress before Belletje speaks. · Budget stays at trial credits (PLAN §1). A +31 number needs Twilio's regulatory review, which won't finish today.
+
+D-015 · 2026-09-21 · Daniel (INPUTS A4, E2) · Calls and app UI are English. Supersedes the "pending" in D-011. · International jury.
+
+D-016 · 2026-09-21 · Daniel (INPUTS B1) · Post-call analysis uses OpenAI `gpt-4o-mini`. · Fast, JSON mode, cheap.
+
+D-017 · 2026-09-21 · Daniel (INPUTS C1, C2) · Server runs on Daniel's laptop behind ngrok (free account, static domain). Laptop and all phones on a mobile hotspot, not eduroam; phones open the ngrok URL. · eduroam likely blocks device-to-device traffic; the static domain keeps `PUBLIC_URL` stable from rehearsal to stage.
+
+D-018 · 2026-09-21 · Daniel (INPUTS D1, D2) · Phones: Layla = Mia (`MIA_PHONE`), Max = Tom (`TOM_PHONE`), Daniel = Mr Hendriks (`NEIGHBOUR_PHONE`). Daniel drives the laptop. · Three people, three phones; the third hop stays demonstrable.
+
+D-019 · 2026-09-21 · Daniel (INPUTS D3) · Family SMS on, through the same Twilio trial account and number (`SMS_ENABLED=true`). · A phone buzzing on stage is worth the trial prefix.
+
+D-020 · 2026-09-21 · Daniel (INPUTS D4) · No-answer wait on stage is 15 s (`ESCALATION_NO_ANSWER_MS=15000`); README and production say 30 s. Risk to check in Phase 3: the trial message + keypress on Tom's leg may eat the 15 s; if the stopwatch shows it does, raise to 30 s. · 30 s of silence is long on stage.
+
+D-021 · 2026-09-21 · Daniel (INPUTS D5) · Scenario 1 values unchanged: 11:00, 200 steps, 4.2 h sleep. · Matches D-008.
+
+D-022 · 2026-09-21 · Daniel · The family flag reads "Dizzy 3× this week — suggest calling the GP" (not "Dr Smeets"), in the app and on the slides. In the call, Belletje still says "mention it to Dr Smeets". · Matches PROJECT.md and the deck; readable without knowing the persona.
+
+D-023 · 2026-09-21 · agent (Daniel said real names would also be fine) · Character names stay Mia Jacobs, Tom, Mr Hendriks, Lotte, Dr Smeets. · They are wired through ~12 files including tests and mock scripts; renaming costs time and buys nothing on stage.
+
+D-024 · 2026-09-21 · Daniel (INPUTS E1, F2) · Max owns `public/` and restyles in place from `MAX.md`, keeping every `aria-label`/`data-testid` (B18). Layla fills `LAYLA.md` (character, tone rules, research, Q&A); an agent copies her character sheet into `data/persona.json` and her tone lines into `src/prompts.js`. · Everyone gets a file only they edit, so nobody collides.
+
+D-025 · 2026-09-21 · Daniel · Git: `main` is the submission. Max and Layla push straight to `main` (pull first). Agents (Cursor and Claude Code) each work on a short branch and merge to `main` only after `npm test` is green and both `scripts/scenario.js` runs pass; they commit and push without asking once green. · One trunk, checked merges, no waiting on reviews.
+
+D-026 · 2026-09-21 · Daniel · Agents ping Daniel before any real call or real SMS. · Each one rings a teammate's phone and spends trial credit.
+
+D-027 · 2026-09-21 · Daniel · Clock times supersede PLAN §9: **18:00 is the hard end: code on public `main` plus the backup video.** The deck is made after 18:00. Accounts (Daniel, by hand) 15:45–16:10 · Phase 1 first live call 16:30 · Phase 2 live memory + LLM summary 16:55 · Phase 3 live escalation 17:20 · Phase 4 freeze 17:25, dry runs, video, merge, submit by 17:55. Cut order unchanged (escalation call first, then proactive scenario as a clip; the live check-in call must work). · We started building at 15:20.
+
+D-028 · 2026-09-21 · Daniel (INPUTS G1) · Tier 3 stays parked; nothing added to scope. · No time.

@@ -15,3 +15,11 @@
 6. **`.env.example` says Node 22.** `process.loadEnvFile` needs Node ≥ 20.12. If Daniel's laptop runs older Node, `npm start` will not read `.env` and every key looks missing. Check `node --version` first thing.
 
 7. **`data/persona.json` contains the demo persona's fictional address as text.** PLAN bans a *real* address; this one is explicitly fictional ("Voorbeeldstraat"). Kept — it must be spoken in the escalation call.
+
+## 2026-09-21 · Kickoff (15:40)
+
+8. **Building started at 15:20, not 13:00.** The morning went into choosing the idea. The PLAN §9 clock times are replaced by D-027; the 15:00 milestone was missed before the first line of Phase 1.
+
+9. **Every live call opens with Twilio's trial message and a keypress** (D-014). Layla and Max must press a key after answering. Not a simulation, so no label is needed, but rehearse it. It may also push Tom's leg past the 15 s rule (D-020).
+
+10. **The Phase 0 screenshots in `DELTA.md` are not in the repo.** DELTA describes captures at 390×844, but no image files exist. Treat those rows as unproven until they are re-captured (PLAN §10: claims without proof).
