@@ -171,7 +171,7 @@ test('B17 demo scenarios, reset, and restart-safe store', async () => {
   const reset = await first.json('/api/reset', { method: 'POST' });
   assert.equal(reset.status, 200);
   assert.equal(first.store.state.calls.length, 0);
-  assert.equal(first.store.state.persona.memory_from_last_calls.length, 2, 'reset restores the seed memory');
+  assert.equal(first.store.state.persona.memory_from_last_calls.length, 5, 'reset restores the seed memory');
 });
 
 test('B18 the app shell: named controls exist, no CDN, polls every 2 s', async () => {

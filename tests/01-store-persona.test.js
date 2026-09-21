@@ -28,10 +28,10 @@ test('B01b corrupt store is quarantined, not fatal', () => {
 
 test('B02 persona memory appends, dedupes and caps', () => {
   const p = defaultPersona();
-  assert.equal(p.memory_from_last_calls.length, 2);
+  assert.equal(p.memory_from_last_calls.length, 5);
   const added = rememberFacts(p, ["Lotte's exam went well", 'Lotte had an exam yesterday; Mia was nervous for her', '  ']);
   assert.deepEqual(added, ["Lotte's exam went well"]);
-  assert.equal(p.memory_from_last_calls.length, 3);
+  assert.equal(p.memory_from_last_calls.length, 6);
   rememberFacts(p, Array.from({ length: 20 }, (_, i) => `fact ${i}`));
   assert.equal(p.memory_from_last_calls.length, 12);
   assert.equal(p.memory_from_last_calls.at(-1), 'fact 19');

@@ -3,7 +3,10 @@
   "age": 81,
   "lives": "alone, Voorbeeldstraat 12, Maastricht (fictional)",
   "address": "Voorbeeldstraat 12, Maastricht",
-  "son": { "name": "Tom", "phone": "TOM_PHONE from .env" },
+  "son": {
+    "name": "Tom",
+    "phone": "TOM_PHONE from .env"
+  },
   "neighbour": "Mr Hendriks, next door, has a spare key",
   "neighbour_name": "Mr Hendriks",
   "gp": "Dr Smeets",
@@ -11,6 +14,14 @@
   "likes": "her garden, crosswords, calls from granddaughter Lotte",
   "memory_from_last_calls": [
     "Lotte had an exam yesterday; Mia was nervous for her",
-    "Mentioned feeling dizzy on Monday and Wednesday"
+    "Mentioned feeling dizzy on Monday and Wednesday",
+    "Tom visited last weekend",
+    "Mia has been spending more time in the garden recently",
+    "Lotte usually calls Mia in the evening"
+  ],
+  "background": [
+    "Mr Hendriks is a friendly neighbour; Mia has known him for years and he has her spare key.",
+    "Tom works in Maastricht and visits Mia about twice a week.",
+    "Her husband passed away a few years ago; she still enjoys taking care of the garden."
   ]
 }
