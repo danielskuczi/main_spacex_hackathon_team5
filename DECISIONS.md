@@ -58,3 +58,5 @@ D-026 · 2026-09-21 · Daniel · Agents ping Daniel before any real call or real
 D-027 · 2026-09-21 · Daniel · Clock times supersede PLAN §9: **18:00 is the hard end: code on public `main` plus the backup video.** The deck is made after 18:00. Accounts (Daniel, by hand) 15:45–16:10 · Phase 1 first live call 16:30 · Phase 2 live memory + LLM summary 16:55 · Phase 3 live escalation 17:20 · Phase 4 freeze 17:25, dry runs, video, merge, submit by 17:55. Cut order unchanged (escalation call first, then proactive scenario as a clip; the live check-in call must work). · We started building at 15:20.
 
 D-028 · 2026-09-21 · Daniel (INPUTS G1) · Tier 3 stays parked; nothing added to scope. · No time.
+
+D-029 · 2026-09-21 · Daniel · Phase 0 gate closed: accepted after Daniel's own click-through of both scenarios (option B). Known gap carried forward: no screenshots in the repo (DEVIATIONS #10). `main` fast-forwarded to the Phase 0 branch so Max and Layla can pull. · Tests 26/26 and both scenarios verified end to end at 15:38.
