@@ -121,7 +121,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     S().calls.push(call);
     addEvent({
       type: 'call',
-      title: kind === 'checkin' ? `Belletje is calling ${contact.name}` : `Calling ${contact.name}`,
+      title: kind === 'checkin' ? `HAVI is calling ${contact.name}` : `Calling ${contact.name}`,
       detail: reason ?? (kind === 'checkin' ? 'Daily check-in' : ''),
       callId: call.id,
       incidentId,
@@ -277,7 +277,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
       for (const f of a.flags) upsertFlag(f, call.id);
       if (a.urgency === 'high') {
         setStatus('attention', a.flags[0]?.text ?? a.summary);
-        await notifyFamily(a.familyMessage ?? `Belletje: ${a.summary}`, { callId: call.id });
+        await notifyFamily(a.familyMessage ?? `HAVI: ${a.summary}`, { callId: call.id });
       } else if (a.urgency === 'medium' || a.flags.some((f) => f.severity !== 'low')) {
         setStatus('attention', a.flags[0]?.text ?? a.summary);
       } else {
@@ -299,7 +299,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
         resolveIncident(incident, 'mia_ok');
         setStatus('ok', `False alarm at ${hhmm()} — Mia says she is fine`);
         addEvent({ type: 'incident', title: 'Mia is okay — false alarm', detail: a.summary, incidentId: incident.id, callId: call.id, severity: 'good' });
-        await notifyFamily(`Belletje: Mia's watch detected a fall at ${hhmm(incident.at)}. She answered and says she is fine. No action needed.`, { incidentId: incident.id, callId: call.id });
+        await notifyFamily(`HAVI: Mia's watch detected a fall at ${hhmm(incident.at)}. She answered and says she is fine. No action needed.`, { incidentId: incident.id, callId: call.id });
         return;
       }
       return callFamily(incident, 'tom', a.outcome === 'needs_help' ? 'She answered and asked for help' : 'She answered but could not confirm she is okay');
@@ -352,7 +352,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     save();
     if (who === 'tom') {
       await notifyFamily(
-        `Belletje: your mother ${incident.type === 'sos' ? 'pressed her alarm button' : 'may have fallen'} at ${hhmm(incident.at)} and isn't answering. ${reason}. Address: ${persona().address}. Can you go now? Answer in the app or on the call.`,
+        `HAVI: your mother ${incident.type === 'sos' ? 'pressed her alarm button' : 'may have fallen'} at ${hhmm(incident.at)} and isn't answering. ${reason}. Address: ${persona().address}. Can you go now? Answer in the app or on the call.`,
         { incidentId: incident.id },
       );
     }
@@ -370,7 +370,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     setStatus('help_on_the_way', `${helperName} is on the way to Mia (since ${hhmm()})`);
     addEvent({ type: 'incident', title: `Help on the way — ${helperName} is going to Mia`, severity: 'good', incidentId: incident.id, callId });
     save();
-    await notifyFamily(`Belletje: ${helperName} is on the way to Mia (${persona().address}). Mark her safe in the app when you've seen her.`, { incidentId: incident.id, callId });
+    await notifyFamily(`HAVI: ${helperName} is on the way to Mia (${persona().address}). Mark her safe in the app when you've seen her.`, { incidentId: incident.id, callId });
   }
 
   async function handoffAlarmCentre(incident, reason) {
@@ -381,7 +381,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
     S().notifications.push({ id: randomUUID(), at: iso(), to: 'Alarm centre (personenalarmering)', channel: 'alarm-centre', status: 'simulated', simulated: true, message: packet, incidentId: incident.id });
     addEvent({ type: 'escalation', title: 'Handed over to the alarm centre (simulated in this demo)', detail: `${reason}. Packet: ${packet}`, severity: 'high', incidentId: incident.id });
     save();
-    await notifyFamily(`Belletje: nobody could be reached for Mia. The alarm centre has been handed the case (${hhmm()}).`, { incidentId: incident.id });
+    await notifyFamily(`HAVI: nobody could be reached for Mia. The alarm centre has been handed the case (${hhmm()}).`, { incidentId: incident.id });
   }
 
   // ---------- inputs ----------
@@ -414,7 +414,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
       const cooldownOk = !S().lastProactiveAt || Date.parse(iso()) - Date.parse(S().lastProactiveAt) > config.escalation.checkinCooldownMs;
       if (reason && cooldownOk && !activeIncident() && !activeCallOfKind('checkin')) {
         S().lastProactiveAt = iso();
-        addEvent({ type: 'proactive', title: 'Quiet morning — Belletje decided to call', detail: `Noticed ${reason}.`, severity: 'info' });
+        addEvent({ type: 'proactive', title: 'Quiet morning — HAVI decided to call', detail: `Noticed ${reason}.`, severity: 'info' });
         setStatus('checking', `Calling Mia: ${reason}`);
         save();
         if (config.autoCheckin) await startCall({ kind: 'checkin', to: 'mia', simulate: signal.simulate, reason: `You noticed ${reason}.` });
@@ -446,7 +446,7 @@ export function createEngine({ config, store, voices, analyzer, notifier, now = 
 
   async function startCheckin({ simulate, reason } = {}) {
     if (activeCallOfKind('checkin')) throw Object.assign(new Error('a check-in call is already in progress'), { status: 409 });
-    setStatus('checking', 'Belletje is calling Mia');
+    setStatus('checking', 'HAVI is calling Mia');
     return startCall({ kind: 'checkin', to: 'mia', simulate, reason });
   }
 

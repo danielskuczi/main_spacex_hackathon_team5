@@ -24,7 +24,7 @@ test('B03 check-in prompt carries memory, last summaries and today\'s watch data
   assert.match(system, /Never give medical advice/);
   assert.match(system, /Never tell her to take, skip, change or remember any medicine/, 'live call 16:30 advised taking a tablet');
   assert.match(system, /Dr Smeets/);
-  assert.match(firstMessage, /Hello Mia, it's Belletje/);
+  assert.match(firstMessage, /Hello Mia, it's HAVI/);
 });
 
 test('B03b escalation prompts are short, ask yes/no and read out the address', () => {

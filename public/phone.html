@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#101a14" />
-  <title>Belletje — phone</title>
+  <title>HAVI — phone</title>
   <style>
     :root { color-scheme: dark; --bg: #101a14; --fg: #f3f1ea; --muted: #a9b3ab; --green: #2fb36b; --red: #d9483b; --gold: #f2c14e; }
     * { box-sizing: border-box; }
@@ -35,7 +35,7 @@
 
     <div class="caller">
       <div class="avatar" aria-hidden="true"></div>
-      <h1 id="title">Belletje</h1>
+      <h1 id="title">HAVI</h1>
       <div class="state" id="state" role="status" aria-live="polite">Tap below to switch this phone on</div>
       <div class="caption" id="caption" aria-live="polite"></div>
     </div>
@@ -49,7 +49,7 @@
       <div class="actions" id="call-actions" hidden>
         <div><button id="hangup" class="round hangup" aria-label="Hang up">✕</button><span class="label">Hang up</span></div>
       </div>
-      <p class="note">Web call: a live AI voice over the internet, not a phone line. In production Belletje rings her ordinary phone.</p>
+      <p class="note">Web call: a live AI voice over the internet, not a phone line. In production HAVI rings her ordinary phone.</p>
     </div>
   </main>
 
@@ -111,7 +111,7 @@
         mic.getTracks().forEach((t) => t.stop());
         const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.7.1/+esm');
         Vapi = mod.default?.default ?? mod.default;
-        show('idle', 'Waiting for Belletje…');
+        show('idle', 'Waiting for HAVI…');
         poll();
       } catch (err) {
         show('off', `Could not switch on: ${err.message}. Allow the microphone and try again.`);
@@ -127,7 +127,7 @@
           ring(true);
         } else if (mode === 'ringing' && (!call || call.id !== ringing.id)) {
           ring(false);
-          show('idle', 'Missed call from Belletje');
+          show('idle', 'Missed call from HAVI');
         }
       } catch { /* server restarting or offline — keep polling */ }
       setTimeout(poll, 1000);
@@ -156,7 +156,7 @@
           show('in-call', 'On the phone · 0:00');
         });
         vapi.on('message', (m) => {
-          if (m.type === 'transcript' && m.transcriptType === 'final') $('caption').textContent = `${m.role === 'user' ? 'You' : 'Belletje'}: ${m.transcript}`;
+          if (m.type === 'transcript' && m.transcriptType === 'final') $('caption').textContent = `${m.role === 'user' ? 'You' : 'HAVI'}: ${m.transcript}`;
         });
         vapi.on('call-end', () => {
           clearInterval(clock);

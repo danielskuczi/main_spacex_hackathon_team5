@@ -1,4 +1,4 @@
-# Belletje — commands + hard rules (keep this file under 80 lines)
+# HAVI — commands + hard rules (keep this file under 80 lines)
 
 Read order for a fresh session: PLAN.md → DECISIONS.md → DEVIATIONS.md → this file → src/engine.js → tests/.
 

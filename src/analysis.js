@@ -10,7 +10,7 @@ const OUTCOMES = ['ok', 'needs_help', 'yes', 'no', 'unclear', 'no_answer'];
 export function transcriptToText(messages = []) {
   return messages
     .filter((m) => m.text)
-    .map((m) => `${m.role === 'user' ? 'User' : 'Belletje'}: ${m.text}`)
+    .map((m) => `${m.role === 'user' ? 'User' : 'HAVI'}: ${m.text}`)
     .join('\n');
 }
 
@@ -27,7 +27,7 @@ export function normaliseTranscript({ messages, transcript } = {}) {
       .map((l) => l.trim())
       .filter(Boolean)
       .map((l) => {
-        const m = l.match(/^(AI|Assistant|Bot|Belletje|User|Customer)\s*:\s*(.*)$/i);
+        const m = l.match(/^(AI|Assistant|Bot|HAVI|User|Customer)\s*:\s*(.*)$/i);
         if (!m) return { role: 'user', text: l };
         return { role: /^(user|customer)$/i.test(m[1]) ? 'user' : 'assistant', text: m[2] };
       });
@@ -145,7 +145,7 @@ export function createAnalyzer(config, { fetchImpl = globalThis.fetch, log = con
   const { llm } = config;
 
   async function llmAnalyse({ call, persona, messages, vitals }) {
-    const system = `You are the post-call analyst for Belletje, an AI care layer for older people who live alone.
+    const system = `You are the post-call analyst for HAVI, an AI care layer for older people who live alone.
 You read a phone transcript and return strict JSON for the family app. You never diagnose and never suggest treatment; you may suggest "check on her" or "mention it to the GP".
 Return exactly this JSON object:
 {

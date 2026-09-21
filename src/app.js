@@ -9,7 +9,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const SCENARIOS = {
   1: {
     name: 'Proactive check-in',
-    description: 'Restless night, 200 steps by 11:00 → Belletje calls Mia, remembers Lotte, hears "dizzy again" → flag for Tom.',
+    description: 'Restless night, 200 steps by 11:00 → HAVI calls Mia, remembers Lotte, hears "dizzy again" → flag for Tom.',
     async run(engine, { live }) {
       const simulate = live ? undefined : { script: 'checkin-dizzy' };
       return engine.handleSignal({ type: 'vitals', steps: 200, heartRate: 78, sleepHours: 4.2, simTime: '11:00', simulate });

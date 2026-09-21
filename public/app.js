@@ -1,4 +1,4 @@
-/* Belletje care-circle app — polls /api/state every 2 s (PLAN.md §7). No build step, no CDN. */
+/* HAVI care-circle app — polls /api/state every 2 s (PLAN.md §7). No build step, no CDN. */
 (() => {
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -118,7 +118,7 @@
       </div>
 
       <h2>Latest call</h2>
-      ${latest ? `<button class="call-card" data-call="${latest.id}" aria-label="Open latest call summary"><div class="row-head"><strong>${esc(callTitle(latest))}</strong>${badge(latest)}</div><p class="summary">${esc(latest.analysis.summary)}</p><div class="meta">${time(latest.endedAt)} · mood: ${esc(latest.analysis.mood ?? '–')} · urgency: ${esc(latest.analysis.urgency)} · analysed by ${esc(latest.analysis.source)}</div></button>` : '<div class="card"><p class="empty">No call yet today. Belletje calls when the morning looks quiet, or when you press the button in the watch tab.</p></div>'}
+      ${latest ? `<button class="call-card" data-call="${latest.id}" aria-label="Open latest call summary"><div class="row-head"><strong>${esc(callTitle(latest))}</strong>${badge(latest)}</div><p class="summary">${esc(latest.analysis.summary)}</p><div class="meta">${time(latest.endedAt)} · mood: ${esc(latest.analysis.mood ?? '–')} · urgency: ${esc(latest.analysis.urgency)} · analysed by ${esc(latest.analysis.source)}</div></button>` : '<div class="card"><p class="empty">No call yet today. HAVI calls when the morning looks quiet, or when you press the button in the watch tab.</p></div>'}
 
       <div class="card" data-testid="notified">
         <h2>Who's been notified</h2>
@@ -126,7 +126,7 @@
       </div>
 
       <div class="card">
-        <h2>What Belletje remembers</h2>
+        <h2>What HAVI remembers</h2>
         <ul class="list">${(state.persona.memory ?? []).slice().reverse().map((m) => `<li><div class="body"><div class="detail">${esc(m)}</div></div></li>`).join('')}</ul>
       </div>`;
   }
@@ -165,8 +165,8 @@
           ${a.newFacts?.length ? `<h2 style="margin-top:12px">Remembered for next time</h2><ul class="list">${a.newFacts.map((f) => `<li><div class="body"><div class="detail">${esc(f)}</div></div></li>`).join('')}</ul>` : ''}
         ` : c.status === 'no-answer' ? '<p>No answer.</p>' : c.status === 'failed' ? `<p>${esc(c.endedReason)}</p>` : '<p>Call in progress — the summary appears here when it ends.</p>'}
       </div>
-      ${c.messages?.length ? `<div class="card"><h2>Transcript</h2><ul class="transcript">${c.messages.map((m) => `<li class="${m.role}"><div class="bubble"><span class="role">${m.role === 'user' ? esc(c.toName) : 'Belletje'}</span>${esc(m.text)}</div></li>`).join('')}</ul></div>` : ''}
-      ${c.vitals && c.vitals.steps != null ? `<div class="card"><h2>Watch data Belletje had during this call</h2><div class="detail hint" style="margin:0">${c.vitals.steps} steps · ${c.vitals.heartRate ?? '–'} bpm · ${c.vitals.sleepHours ?? '–'} h sleep${c.vitals.simTime ? ` · ${esc(c.vitals.simTime)}` : ''}</div></div>` : ''}`;
+      ${c.messages?.length ? `<div class="card"><h2>Transcript</h2><ul class="transcript">${c.messages.map((m) => `<li class="${m.role}"><div class="bubble"><span class="role">${m.role === 'user' ? esc(c.toName) : 'HAVI'}</span>${esc(m.text)}</div></li>`).join('')}</ul></div>` : ''}
+      ${c.vitals && c.vitals.steps != null ? `<div class="card"><h2>Watch data HAVI had during this call</h2><div class="detail hint" style="margin:0">${c.vitals.steps} steps · ${c.vitals.heartRate ?? '–'} bpm · ${c.vitals.sleepHours ?? '–'} h sleep${c.vitals.simTime ? ` · ${esc(c.vitals.simTime)}` : ''}</div></div>` : ''}`;
   }
 
   function renderAlert() {
@@ -184,7 +184,7 @@
     el.hidden = false;
     el.className = 'alert';
     el.innerHTML = `
-      <div class="kicker">Belletje · ${time(inc.at)}</div>
+      <div class="kicker">HAVI · ${time(inc.at)}</div>
       <h1 id="alert-title">Your mother ${what} and isn't answering.</h1>
       <p>Mia's watch ${inc.type === 'sos' ? 'sent an SOS' : inc.type === 'help_request' ? 'call ended with a request for help' : 'detected a fall'} at ${time(inc.at)}. She didn't pick up within ${state.meta.noAnswerSeconds} seconds.</p>
       <div class="addr">${esc(state.persona.address)}</div>
@@ -232,7 +232,7 @@
   });
   $('#sos').addEventListener('click', () => act(api('/api/signals', { type: 'sos', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('SOS sent — calling Mia'); show('home'); poll(); })));
   $('#checkin').addEventListener('click', () =>
-    act(api('/api/calls', { kind: 'checkin', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('Belletje is calling Mia'); show('home'); poll(); })),
+    act(api('/api/calls', { kind: 'checkin', simulate: sim.live.checked ? undefined : {} }).then(() => { toast('HAVI is calling Mia'); show('home'); poll(); })),
   );
   $$('[data-scenario]').forEach((b) =>
     b.addEventListener('click', () =>

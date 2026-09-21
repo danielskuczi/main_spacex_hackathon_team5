@@ -78,7 +78,7 @@ test('B14 check-in end to end: summary, flag, memory and status land in /api/sta
 
   const detail = await json(`/api/calls/${call.id}`);
   assert.equal(detail.status, 200);
-  assert.match(detail.body.systemPrompt, /Belletje/);
+  assert.match(detail.body.systemPrompt, /HAVI/);
 });
 
 test('B15 Vapi payload: transient assistant with prompt, customer number, webhook URL and secret', () => {
@@ -191,7 +191,7 @@ test('B18 the app shell: named controls exist, no CDN, polls every 2 s', async (
   const { base } = await boot();
   const res = await fetch(base + '/');
   assert.equal(res.status, 200);
-  assert.match(await res.text(), /Belletje/);
+  assert.match(await res.text(), /HAVI/);
   assert.equal((await fetch(base + '/app.js')).status, 200);
   assert.equal((await fetch(base + '/api/health')).status, 200);
 });

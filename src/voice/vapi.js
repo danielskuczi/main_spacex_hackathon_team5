@@ -24,7 +24,7 @@ export function buildCallPayload(call, config) {
     customer: { number: call.phone, name: call.toName },
     metadata: { belletjeCallId: call.id, kind: call.kind, incidentId: call.incidentId ?? null },
     assistant: {
-      name: isCheckin ? 'Belletje check-in' : 'Belletje escalation',
+      name: isCheckin ? 'HAVI check-in' : 'HAVI escalation',
       metadata: { belletjeCallId: call.id },
       firstMessage: call.firstMessage,
       firstMessageMode: 'assistant-speaks-first',

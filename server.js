@@ -17,7 +17,7 @@ const app = createApp({ engine, store, config, voices });
 
 const server = app.listen(config.port, () => {
   const info = engine.info();
-  console.log(`Belletje on http://localhost:${config.port}`);
+  console.log(`HAVI on http://localhost:${config.port}`);
   console.log(`  voice: ${info.voiceProvider}${info.liveCalls ? ' (LIVE calls)' : ' (simulated calls)'} · llm: ${info.llm ? config.llm.model : 'heuristic fallback'} · sms: ${info.sms ? 'live' : 'simulated'}`);
   console.log(`  webhook: ${info.webhookUrl ?? 'PUBLIC_URL not set — Vapi cannot reach us; use ngrok/cloudflared'}`);
   console.log(`  no-answer rule: ${info.noAnswerSeconds} s · store: ${config.dataFile}`);

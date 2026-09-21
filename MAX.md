@@ -26,7 +26,7 @@ Faster: `ESCALATION_NO_ANSWER_MS=8000 MOCK_RING_MS=1500 MOCK_TALK_MS=4000 npm st
 ## Screens and what's on them
 
 ### Top bar + tab bar (always visible)
-- [ ] Brand "Belletje" · who: "Mia Jacobs · 81" (`#who`) · connection badge `#conn` shows **LIVE** or **SIM**
+- [ ] Brand "HAVI" · who: "Mia Jacobs · 81" (`#who`) · connection badge `#conn` shows **LIVE** or **SIM**
 - [ ] Tab bar `aria-label="Main navigation"`: Home · Timeline · Watch (`data-nav`)
 
 ### 1. Status home (`data-testid="status-home"`)
@@ -38,11 +38,11 @@ Faster: `ESCALATION_NO_ANSWER_MS=8000 MOCK_RING_MS=1500 MOCK_TALK_MS=4000 npm st
 - [ ] **Flags for the family** (`data-testid="flags"`): count, each flag = text + time + "from the live/simulated call" + **Handled** button (`aria-label="Mark flag handled"`). Severity low / medium / high. Empty state: "Nothing to worry about right now."
 - [ ] **Latest call** card (`aria-label="Open latest call summary"`): title, LIVE/SIMULATED badge, summary, time · mood · urgency · "analysed by AI / heuristic"
 - [ ] **Who's been notified** (`data-testid="notified"`): time, who, channel tag (SMS / call) with "· simulated" or "· failed", message
-- [ ] **What Belletje remembers**: list of memory facts, newest first (candidate: collapse behind a tap, since home is one long scroll)
+- [ ] **What HAVI remembers**: list of memory facts, newest first (candidate: collapse behind a tap, since home is one long scroll)
 
 ### 2. "Can you go now?" alert (`data-testid="go-now-alert"`, full-screen `role="alertdialog"`)
 Shows on Tom's phone when the rules escalate. This is the money shot.
-- [ ] Kicker "Belletje · HH:MM" · headline "Your mother may have fallen and isn't answering."
+- [ ] Kicker "HAVI · HH:MM" · headline "Your mother may have fallen and isn't answering."
 - [ ] Line: watch detected a fall at HH:MM, didn't pick up within N seconds
 - [ ] **Address** (big) · neighbour + spare-key line
 - [ ] Status line: "Calling your phone now (simulated)…" / "Calling Mr Hendriks…" / "Alarm centre has the case."
@@ -55,23 +55,23 @@ Shows on Tom's phone when the rules escalate. This is the money shot.
 - [ ] Time · state (dialling / ringing / on the phone / 42s / no answer / could not call) · reason · "via vapi"
 - [ ] Summary (large) · 4 key-values: Mood, Urgency, Outcome, Analysed by
 - [ ] Flags from this call · "Remembered for next time" list
-- [ ] **Transcript** as chat bubbles (Belletje vs Mia/Tom)
-- [ ] "Watch data Belletje had during this call": steps · bpm · sleep · time
+- [ ] **Transcript** as chat bubbles (HAVI vs Mia/Tom)
+- [ ] "Watch data HAVI had during this call": steps · bpm · sleep · time
 
 ### 4. Timeline (`data-testid="timeline"`)
 - [ ] Every event, newest first, time with **seconds**, icon per type (incident, escalation, call, flag, SMS, watch signal, proactive ✦, memory, demo, error), high = red, good = green
 - [ ] Events tied to a call are tappable → call detail
-- [ ] Key line to make shine: "Quiet morning — Belletje decided to call" (proactivity)
+- [ ] Key line to make shine: "Quiet morning — HAVI decided to call" (proactivity)
 
 ### 5. Watch simulator (`data-testid="watch-simulator"`). Daniel's control panel on stage
 - [ ] Note: "In this demo the watch is simulated — everything after it is real."
 - [ ] Watch face: time input (`aria-label="Watch time"`), **SOS** (`aria-label="SOS button"`)
 - [ ] Sliders: steps (`Steps slider`), heart rate (`Heart rate slider`), sleep (`Sleep slider`); toggle `Fall detected toggle`
-- [ ] Button **"Belletje calls Mia now"** (`aria-label="Start check-in call"`)
+- [ ] Button **"HAVI calls Mia now"** (`aria-label="Start check-in call"`)
 - [ ] Demo card: **Live phone calls** switch (`Live calls toggle`), **Scenario 1** (`Run scenario 1`), **Scenario 2** (`Run scenario 2`), **Reset demo** (`Reset demo`)
 
 ## 6. The phone page (`public/phone.html`, new, D-030)
-There is no phone line (Twilio is paid), so calls ring on a web page instead. Your phone opens `<tunnel URL>/phone.html?who=tom`, Layla's opens `?who=mia`. It rings, you tap **Answer**, and you talk to Belletje live in the browser.
+There is no phone line (Twilio is paid), so calls ring on a web page instead. Your phone opens `<tunnel URL>/phone.html?who=tom`, Layla's opens `?who=mia`. It rings, you tap **Answer**, and you talk to HAVI live in the browser.
 - [ ] Restyle it like an incoming call screen, but keep the `aria-label`s (`Switch phone on`, `Answer call`, `Decline call`, `Hang up`) and the element ids used by its script.
 - [ ] Keep the note "Web call … not a phone line". The app's call badge now says **"live web call"** for these calls.
 
