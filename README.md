@@ -2,7 +2,19 @@
 
 **The button waits for the fall. We don't.**
 
-An AI care layer that connects what older people already have — alarm button, wearable, phone, family, alarm centre — into one loop. A daily check-in call that remembers her life and uses her watch data; summaries and flags for the family; rule-based escalation that gets a real person there fast.
+HAVI is an AI care layer that links an older person's alarm button, watch, phone, family and alarm centre into one loop. It notices problems early and gets a real person there fast.
+
+## For the judges
+
+Older people who live alone already have a panic button, a smartwatch, a phone and family nearby. None of these talk to each other, and the button only helps *after* a fall, and only if she can press it. HAVI is the AI layer that connects them.
+
+- **A daily check-in call.** Every morning HAVI calls her for a short, warm chat. It remembers her life ("How did Lotte's exam go?") and gently mentions a restless night or a quiet morning it saw on her watch. It never gives medical advice.
+- **Early warnings for the family.** After each call, the family app shows a short summary and flags such as *"Dizzy 3× this week — suggest calling the GP"*. The family can act before a crisis.
+- **Fast help after a fall.** When the watch detects a fall, HAVI calls her first. If she doesn't answer within 15 seconds, it calls her son and asks "Can you go now?". If he can't go, it calls the neighbour with the spare key, then hands over to the alarm centre.
+
+**Built to be trusted.** The AI writes the conversations and summaries, but who gets called is decided by fixed, readable rules in code, never by the model. The AI suggests; people decide. HAVI makes no diagnoses and is not a medical device. In the demo, everything simulated is labelled on screen.
+
+**What's real today:** live AI voice calls, memory across calls, AI-written summaries and flags, and the full escalation loop. In our live test, the son's phone rang 15 seconds after the fall and he answered at 21 seconds. Only the watch is simulated, and calls ring in a web page on the phone rather than over a phone line. A call costs about $0.09 per minute.
 
 Hackathon build, Maastricht. Team: Daniel (backend, voice, escalation), Max (app design, deck, pitch), Layla (persona, research, Q&A).
 
