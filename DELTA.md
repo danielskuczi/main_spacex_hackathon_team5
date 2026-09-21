@@ -31,3 +31,21 @@ Rows below 7: Conversation (2), Escalation (4), Robustness (4). Two cheapest +2s
 
 ### Floors
 F1 ✓ (B06 < 3 s) · F2 ✓ ordering (B07), wall-clock pending live · F3 ✓ (B18) · F4 ✓ (B05/B14) · F5 ✓ (B18 + captures) · F6 ✓ (B18) · F7 ✓ · F8 ✓ (B17) · F9 ✓ (`applyRules` only reads `analysis.outcome`).
+
+## Phase 1 — First real call · 2026-09-21 16:45
+
+### What runs
+- Live Vapi web call to Daniel's phone (`/phone.html?who=mia`, D-030) at 16:30: rang, answered, 93 s, 11 transcript lines; end-of-call webhook landed through the ngrok tunnel; summary in the app.
+- LLM analysis live (D-032): the same transcript re-analysed in 3.5–4.9 s, `source: llm`. Both scenarios re-run with the real LLM: scenario 1 → "Dizzy 3× … suggest calling the GP", no false escalation; scenario 2 → 15 s → Tom `yes` → Help on the way.
+- Battery 28/28.
+
+### Gap vs anchors
+| Anchor | Where we are | Gap |
+|---|---|---|
+| ElliQ | Live call used her name, asked about Lotte unprompted, noticed the restless night without numbers, closed warmly | Gave medication advice once (fixed in prompt, DEVIATIONS 14); says "Bellicca"; web call, not her phone line |
+| Apple SOS | Loop verified simulated with the real LLM | Not yet run live on two phone pages (Phase 3) |
+| Sensi | LLM summary + flags from a live transcript, banned words enforced in code | "Dizzy 3×" not yet produced from a *live* call (Phase 2 gate) |
+
+### Self-score
+Conversation 7 (live, memory, gentle; one advice slip) · Proactivity 7 · Escalation 4 (simulated only) · Family insight 7 · Glanceability 7 · Robustness 7 (live + simulated fallback, rehearsed once) · Honesty 10 ("live web call" labels) · Accessibility 7.
+Row below 7: Escalation. Cheapest +2: run scenario 2 live with Max on `?who=tom` (Phase 3).
